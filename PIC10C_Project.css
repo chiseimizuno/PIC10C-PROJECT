@@ -1,0 +1,68 @@
+
+*{font-family:helvetica;text-decoration:none;}
+
+/*_________________________*/
+
+#playGame{
+	margin:0px 100px 0px 100px;
+	text-align:center;
+	font-weight:bolder;
+	font-size:50px;
+	margin-top:200px;
+	border:1px solid black;
+	background-color:rgba(230,230,230,0.5);
+	z-index:20;
+	padding:10px;
+}
+
+#playGame:hover{
+	background-color:white;
+	cursor:pointer;
+	font-size:50px;
+}
+
+#playGame:active{
+	background-color:rgba(230,230,230,1);
+	cursor:pointer;
+	font-size:49px;
+}
+
+/*_________________________*/
+
+#display{
+	text-align:center;
+	float:top;
+	width:800px;
+	height:70px;
+	margin-top:20px;
+	margin-left:20px;
+	padding:0px 10px;
+	border:double black 3px;
+	background: rgba(245, 255, 250, 0.8);
+}
+
+#clock{
+	float:right;
+	font-size:50px;
+	margin-top:10px;
+}
+
+#score{
+	float:left;
+	font-size:50px;
+	margin-top:10px;
+}
+
+/*_________________________*/
+
+#game{
+	float:bottom;
+	width:800px;
+	height:500px;
+	margin-top:7px;
+	margin-left:20px;
+	padding:0px 10px;
+	border:double black 3px;
+	background: rgba(245, 255, 250, 0.5);
+}
+
