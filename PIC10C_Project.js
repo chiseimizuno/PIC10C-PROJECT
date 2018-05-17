@@ -1,6 +1,7 @@
 function init()
 {
-	divBall = document.getElementById("ball");
+	divBall1 = document.getElementById("ball1");
+	divBall2 = document.getElementById("ball2");
 	divGame = document.getElementById("game");
 	divPlayer = document.getElementById("player");
 	divPlay = document.getElementById("playGame");
@@ -13,9 +14,14 @@ function init()
 
 function start()
 {
+	//Click Event
+	document.onmousemove = moveMouse;
+	divPlay.style.display = "none";
+	divGame.style.cursor = "none";
+
 	//Width and Height 
-	ballWidth = divBall.offsetWidth;
-	ballHeight = divBall.offsetHeight;
+	ballWidth = divBall1.offsetWidth;
+	ballHeight = divBall1.offsetHeight;
 	gameLeft = divGame.offsetLeft;
 	gameWidth = divGame.offsetWidth;
 	gameRight = gameLeft+gameWidth;
@@ -25,28 +31,35 @@ function start()
 	playerWidth = divPlayer.offsetWidth;
 	playerHeight = divPlayer.offsetHeight;
 
-	//Set locations of icons
+	//Set location of player
 	divPlayer.style.left = gameLeft + 700 + "px";
 	divPlayer.style.top = gameTop + 450 + "px";
-	divBall.style.left = divGame.offsetLeft+200+"px";
-	divBall.style.top = divGame.offsetTop+100+"px";
 
-	//Click
-	document.onmousemove = moveMouse;
-	divPlay.style.display = "none";
-	divGame.style.cursor = "none";
+	//Set location of balls
+	divBall1.style.left = gameLeft+200+"px";
+	divBall1.style.top = gameTop+100+"px";
+	divBall2.style.left = gameLeft+400+"px";
+	divBall2.style.top = gameTop+100+"px";
+
+	//Set speed of balls
+	dx1 = 3; dy1 = 0;
+	dx2 = 3; dy2 = 0;
+
+	
 
 	//Variable Initialization
-	speedLeft = 3.0;
-	speedTop = 0.0;
 	counter = 0;
 	points = 0;
-	dx = speedLeft;
-	dy = speedTop;
-	acceleration = 0.5;
-	accCounter = 0;
+
 	move_it();
 	Clock();
+}
+
+function enemy() {
+	var classname = "ball";
+	var acceleration = 0.5;
+	var dx = 3;
+	var dy = 0;
 }
 
 
@@ -72,7 +85,6 @@ function moveMouse(e){
 	x=e.pageX;
 	y=e.pageY;
 
-	
 	//Move horizontal within border
 	if (x > gameLeft+ 10 && x < gameRight-10)
 		divPlayer.style.left = x - (playerWidth/2) + "px";
@@ -85,38 +97,44 @@ function moveMouse(e){
 
 function move_it()
 {
-	
-	//Calculate Horizontal Movement
+	//Current player position
 	playerLeft = divPlayer.offsetLeft;
-	xPlayer = parseInt(divBall.style.left) + dx + "px";
-	divBall.style.left = xPlayer;
+	playerRight = playerLeft+playerWidth;
+
+	animate_ball(divBall1, dx1, dy1);
+	animate_ball(divBall2, dx2, dy2);
+
+	setTimeout("move_it()",20); 
+}
+
+function animate_ball(ballObj, dx, dy)
+{
+	//Calculate Horizontal Movement
+	xBall = parseInt(ballObj.style.left) + dx + "px";
+	ballObj.style.left = xBall;
 
 	//Calculate Vertical Movement
-	//acceleration=0.5;
-	playerTop = divPlayer.offsetTop;
-	dy = dy + acceleration; 
-	yPlayer = parseInt(divBall.style.top) + dy + "px";
+	dy = dy + acceleration;  //Gravity
+	yBall = parseInt(ballObj.style.top) + dy + "px";
 	divScore.innerHTML = dy;
-	divBall.style.top = yPlayer;
+	ballObj.style.top = yBall;
 	
 
 	//Left wall collison detection
-	if(parseInt(xPlayer)<gameLeft)
+	if(parseInt(xBall)<gameLeft)
 	{	
 		dx = dx*-1;	
 	}
 	//Right wall collison detection
-	else if (parseInt(xPlayer)+ballWidth>gameRight)
+	else if (parseInt(xBall)+ballWidth>gameRight)
 	{
 		dx = dx*-1;
 	}
 	//Vertical collision detection
-	if(parseInt(yPlayer)+ballHeight>gameBottom)
+	if(parseInt(yBall)+ballHeight>gameBottom)
 	{
-		divBall.style.top = gameBottom-20+"px";
-		dy = dy*-1;
-		dy+=1;
+		ballObj.style.top = gameBottom-20+"px";
+		dy = dy*-1; 
+		dy+=1; //Basically Inertia
 	}
-
-	setTimeout("move_it()",16); 
 }
