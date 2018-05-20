@@ -36,16 +36,14 @@ function start()
 	divPlayer.style.top = gameTop + 450 + "px";
 
 	//Set location of balls
+	/*
 	divBall1.style.left = gameLeft+200+"px";
 	divBall1.style.top = gameTop+100+"px";
 	divBall2.style.left = gameLeft+400+"px";
 	divBall2.style.top = gameTop+100+"px";
-
-	//Set speed of balls
-	dx1 = 3; dy1 = 0;
-	dx2 = 3; dy2 = 0;
-
-	
+	*/
+	enemy1 = new enemy(divBall1,200,100);
+	enemy2 = new enemy(divBall2,400,100);
 
 	//Variable Initialization
 	counter = 0;
@@ -54,15 +52,6 @@ function start()
 	move_it();
 	Clock();
 }
-
-function enemy() {
-	var classname = "ball";
-	var acceleration = 0.5;
-	var dx = 3;
-	var dy = 0;
-}
-
-
 
 function Clock()
 {
@@ -94,6 +83,28 @@ function moveMouse(e){
 		divPlayer.style.left = gameRight - 20 + "px";
 }
 
+function enemy(divBall, xLoc, yLoc) {
+	//Initalization
+	this.xLoc = xLoc;
+	this.yLoc = yLoc;
+	this.divBall = divBall;
+	this.acceleration = 0.5;
+	this.dx = 3;
+	this.dy = 0;
+	//Initial position
+	divBall.style.left = gameLeft + xLoc + "px";
+	divBall.style.top = gameTop + yLoc + "px";
+	//Mutator
+	this.changeX = function(newX) {
+		xLoc = newX;
+		divBall.style.left = newX + "px";
+	}
+	this.changeY = function(newY) {
+		yLoc = newY;
+		divBall.style.top = newY + "px";
+	}
+
+}
 
 function move_it()
 {
@@ -101,13 +112,13 @@ function move_it()
 	playerLeft = divPlayer.offsetLeft;
 	playerRight = playerLeft+playerWidth;
 
-	animate_ball(divBall1, dx1, dy1);
-	animate_ball(divBall2, dx2, dy2);
+	//animate_ball(divBall1, dx1, dy1);
+	//animate_ball(divBall2, dx2, dy2);
 
 	setTimeout("move_it()",20); 
 }
 
-function animate_ball(ballObj, dx, dy)
+function animate_ball(ballObj)
 {
 	//Calculate Horizontal Movement
 	xBall = parseInt(ballObj.style.left) + dx + "px";
