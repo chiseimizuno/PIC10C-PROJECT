@@ -2,6 +2,9 @@ function init()
 {
 	divBall1 = document.getElementById("ball1");
 	divBall2 = document.getElementById("ball2");
+	divBall3 = document.getElementById("ball3");
+	divBall4 = document.getElementById("ball4");
+	divBall5 = document.getElementById("ball5");
 	divGame = document.getElementById("game");
 	divPlayer = document.getElementById("player");
 	divPlay = document.getElementById("playGame");
@@ -35,15 +38,12 @@ function start()
 	divPlayer.style.left = gameLeft + 700 + "px";
 	divPlayer.style.top = gameTop + 450 + "px";
 
-	//Set location of balls
-	/*
-	divBall1.style.left = gameLeft+200+"px";
-	divBall1.style.top = gameTop+100+"px";
-	divBall2.style.left = gameLeft+400+"px";
-	divBall2.style.top = gameTop+100+"px";
-	*/
-	enemy1 = new enemy(divBall1,200,100);
-	enemy2 = new enemy(divBall2,400,100);
+	//Ball Location
+	enemy1 = new enemy(divBall1,locRand(10,700),locRand(10,200));
+	enemy2 = new enemy(divBall2,locRand(10,700),locRand(10,200));
+	enemy3 = new enemy(divBall3,locRand(10,700),locRand(10,200));
+	enemy4 = new enemy(divBall4,locRand(10,700),locRand(10,200));
+	enemy5 = new enemy(divBall5,locRand(10,700),locRand(10,200));
 
 	//Variable Initialization
 	counter = 0;
@@ -51,6 +51,10 @@ function start()
 
 	move_it();
 	Clock();
+}
+
+function locRand(pos, range){
+	return pos + Math.floor((Math.random() * range));
 }
 
 function Clock()
@@ -67,8 +71,6 @@ function Clock()
 	setTimeout("Clock()",1000);
 }
 
-
-
 function moveMouse(e){
 	prevY = divPlayer.offsetTop;
 	x=e.pageX;
@@ -83,27 +85,49 @@ function moveMouse(e){
 		divPlayer.style.left = gameRight - 20 + "px";
 }
 
-function enemy(divBall, xLoc, yLoc) {
+function enemy(ball, xLoc, yLoc) {
 	//Initalization
-	this.xLoc = xLoc;
-	this.yLoc = yLoc;
-	this.divBall = divBall;
+	this.xLoc = gameLeft + xLoc;
+	this.yLoc = gameTop + yLoc;
+	//this.dx = Math.round(Math.random())*(-6) + 3; //Either -3 or 3
+	this.dx = -5 + Math.floor(Math.random()*10); //Between -3 to 3
+	this.dy = 0.0;
+	this.ball = ball;
 	this.acceleration = 0.5;
-	this.dx = 3;
-	this.dy = 0;
 	//Initial position
-	divBall.style.left = gameLeft + xLoc + "px";
-	divBall.style.top = gameTop + yLoc + "px";
+	ball.style.left =  this.xLoc + "px";
+	ball.style.top = this.yLoc + "px";
 	//Mutator
-	this.changeX = function(newX) {
-		xLoc = newX;
-		divBall.style.left = newX + "px";
-	}
-	this.changeY = function(newY) {
-		yLoc = newY;
-		divBall.style.top = newY + "px";
-	}
-
+	this.changeX = function() {
+		this.xLoc = this.xLoc + this.dx;
+		ball.style.left = this.xLoc + "px";
+	};
+	this.changeY = function() {
+		this.yLoc = this.yLoc + this.dy;
+		ball.style.top = this.yLoc + "px";
+	};
+	this.reverseX = function() {
+		this.dx = this.dx*-1;
+	};
+	this.reverseY = function() {
+		this.dy = this.dy*-1;
+	};
+	this.accelerateY = function(acc) {
+		this.dy = this.dy + acc;
+	};
+	this.fixVerticalLocation = function() {
+		this.yLoc = gameBottom-20;
+		ball.style.top = this.yLoc + "px";
+	};
+	this.addEnergyLossY = function(loss) {
+		this.dy = this.dy + loss;
+	};
+	this.addEnergyLossX = function(loss) {
+		if (this.dx-loss < 0)
+			loss = loss*-1;
+		this.dx = this.dx - loss;
+	};
+	
 }
 
 function move_it()
@@ -112,40 +136,37 @@ function move_it()
 	playerLeft = divPlayer.offsetLeft;
 	playerRight = playerLeft+playerWidth;
 
-	//animate_ball(divBall1, dx1, dy1);
-	//animate_ball(divBall2, dx2, dy2);
+	animate_enemy(enemy1);
+	animate_enemy(enemy2);
+	animate_enemy(enemy3);
+	animate_enemy(enemy4);
+	animate_enemy(enemy5);
 
-	setTimeout("move_it()",20); 
+	setTimeout("move_it()",10); 
 }
 
-function animate_ball(ballObj)
+function animate_enemy(en)
 {
 	//Calculate Horizontal Movement
-	xBall = parseInt(ballObj.style.left) + dx + "px";
-	ballObj.style.left = xBall;
+	en.changeX();
+	en.addEnergyLossX(0.005);
+	en.addEnergyLossY(0.1);
 
 	//Calculate Vertical Movement
-	dy = dy + acceleration;  //Gravity
-	yBall = parseInt(ballObj.style.top) + dy + "px";
-	divScore.innerHTML = dy;
-	ballObj.style.top = yBall;
+	en.accelerateY(0.5);  //Gravity
+	en.changeY();
 	
-
-	//Left wall collison detection
-	if(parseInt(xBall)<gameLeft)
+	//Horizontal wall collison detection
+	if(en.xLoc<gameLeft || en.xLoc+ballWidth>gameRight)
 	{	
-		dx = dx*-1;	
+		en.reverseX();
 	}
-	//Right wall collison detection
-	else if (parseInt(xBall)+ballWidth>gameRight)
-	{
-		dx = dx*-1;
-	}
+
 	//Vertical collision detection
-	if(parseInt(yBall)+ballHeight>gameBottom)
+	if(en.yLoc+ballHeight>gameBottom)
 	{
-		ballObj.style.top = gameBottom-20+"px";
-		dy = dy*-1; 
-		dy+=1; //Basically Inertia
+		en.fixVerticalLocation();
+		en.reverseY();
+		en.addEnergyLossY(0.3);
 	}
 }
