@@ -12,13 +12,12 @@ function init()
 	divClock = document.getElementById("clock");
 	divScore = document.getElementById("score");
 	divPlay.onclick = start;
-
 }
 
 function start()
 {
 	//Click Event
-	document.onmousemove = moveMouse;
+	//document.onmousemove = moveMouse;
 	divPlay.style.display = "none";
 	divGame.style.cursor = "none";
 
@@ -49,85 +48,20 @@ function start()
 	counter = 0;
 	points = 0;
 
+	//Get keystrokes
+	keyPressed = 0;
+	document.addEventListener("keydown",function(e){
+		if (e.which == 65){
+			divPlayer.style.left = parseInt(divPlayer.style.left)-25+"px";
+		}
+		if (e.which == 68){
+			divPlayer.style.left = parseInt(divPlayer.style.left)+25+"px";
+		}
+	});
+
+
 	move_it();
 	Clock();
-}
-
-function locRand(pos, range){
-	return pos + Math.floor((Math.random() * range));
-}
-
-function Clock()
-{
-	divCountDown.innerHTML = "";
-	counter++;
-	minutes = Math.floor(counter/60);
-	seconds = (counter%60);
-	if (minutes < 10)
-		minutes = "0" + minutes;
-	if (seconds < 10)
-		seconds = "0" + seconds;
-	divClock.innerHTML = minutes + ":" + seconds;
-	setTimeout("Clock()",1000);
-}
-
-function moveMouse(e){
-	prevY = divPlayer.offsetTop;
-	x=e.pageX;
-	y=e.pageY;
-
-	//Move horizontal within border
-	if (x > gameLeft+ 10 && x < gameRight-10)
-		divPlayer.style.left = x - (playerWidth/2) + "px";
-	else if (x < gameLeft + 5)
-		divPlayer.style.left = gameLeft + 5 + "px";
-	else if (x > gameRight-10)
-		divPlayer.style.left = gameRight - 20 + "px";
-}
-
-function enemy(ball, xLoc, yLoc) {
-	//Initalization
-	this.xLoc = gameLeft + xLoc;
-	this.yLoc = gameTop + yLoc;
-	//this.dx = Math.round(Math.random())*(-6) + 3; //Either -3 or 3
-	this.dx = -5 + Math.floor(Math.random()*10); //Between -3 to 3
-	this.dy = 0.0;
-	this.ball = ball;
-	this.acceleration = 0.5;
-	//Initial position
-	ball.style.left =  this.xLoc + "px";
-	ball.style.top = this.yLoc + "px";
-	//Mutator
-	this.changeX = function() {
-		this.xLoc = this.xLoc + this.dx;
-		ball.style.left = this.xLoc + "px";
-	};
-	this.changeY = function() {
-		this.yLoc = this.yLoc + this.dy;
-		ball.style.top = this.yLoc + "px";
-	};
-	this.reverseX = function() {
-		this.dx = this.dx*-1;
-	};
-	this.reverseY = function() {
-		this.dy = this.dy*-1;
-	};
-	this.accelerateY = function(acc) {
-		this.dy = this.dy + acc;
-	};
-	this.fixVerticalLocation = function() {
-		this.yLoc = gameBottom-20;
-		ball.style.top = this.yLoc + "px";
-	};
-	this.addEnergyLossY = function(loss) {
-		this.dy = this.dy + loss;
-	};
-	this.addEnergyLossX = function(loss) {
-		if (this.dx-loss < 0)
-			loss = loss*-1;
-		this.dx = this.dx - loss;
-	};
-	
 }
 
 function move_it()
@@ -170,3 +104,87 @@ function animate_enemy(en)
 		en.addEnergyLossY(0.3);
 	}
 }
+
+function enemy(ball, xLoc, yLoc) {
+	//Initalization
+	this.xLoc = gameLeft + xLoc;
+	this.yLoc = gameTop + yLoc;
+	//this.dx = Math.round(Math.random())*(-6) + 3; //Either -3 or 3
+	this.dx = -6 + Math.floor(Math.random()*13); //Between -3 to 3
+	this.dy = 0.0;
+	this.ball = ball;
+	this.acceleration = 0.5;
+	//Initial position
+	ball.style.left =  this.xLoc + "px";
+	ball.style.top = this.yLoc + "px";
+	//Mutator
+	this.changeX = function() {
+		this.xLoc = this.xLoc + this.dx;
+		ball.style.left = this.xLoc + "px";
+	};
+	this.changeY = function() {
+		this.yLoc = this.yLoc + this.dy;
+		ball.style.top = this.yLoc + "px";
+	};
+	this.reverseX = function() {
+		this.dx = this.dx*-1;
+	};
+	this.reverseY = function() {
+		this.dy = this.dy*-1;
+	};
+	this.accelerateY = function(acc) {
+		this.dy = this.dy + acc;
+	};
+	this.fixVerticalLocation = function() {
+		this.yLoc = gameBottom-20;
+		ball.style.top = this.yLoc + "px";
+	};
+	this.addEnergyLossY = function(loss) {
+		this.dy = this.dy + loss;
+	};
+	this.addEnergyLossX = function(loss) {
+		if (this.dx-loss < 0)
+			loss = loss*-1;
+		if (Math.abs(this.dx) < 0.1) //prevent movement
+		{
+			this.dx = 0;
+			loss = 0;
+		}
+		this.dx = this.dx - loss;
+	};	
+}
+
+
+//AUXILIARY FUNCTIONS________________________________________________
+function locRand(pos, range){
+	return pos + Math.floor((Math.random() * range));
+}
+
+function Clock()
+{
+	divCountDown.innerHTML = "";
+	counter++;
+	minutes = Math.floor(counter/60);
+	seconds = (counter%60);
+	if (minutes < 10)
+		minutes = "0" + minutes;
+	if (seconds < 10)
+		seconds = "0" + seconds;
+	divClock.innerHTML = minutes + ":" + seconds;
+	setTimeout("Clock()",1000);
+}
+
+function moveMouse(e){
+	prevY = divPlayer.offsetTop;
+	x=e.pageX;
+	y=e.pageY;
+
+	//Move horizontal within border
+	if (x > gameLeft+ 10 && x < gameRight-10)
+		divPlayer.style.left = x - (playerWidth/2) + "px";
+	else if (x < gameLeft + 5)
+		divPlayer.style.left = gameLeft + 5 + "px";
+	else if (x > gameRight-10)
+		divPlayer.style.left = gameRight - 20 + "px";
+}
+
