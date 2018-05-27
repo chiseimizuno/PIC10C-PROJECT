@@ -1,16 +1,20 @@
 function init()
 {
 	divBall1 = document.getElementById("ball1");
-	divBall2 = document.getElementById("ball2");
-	divBall3 = document.getElementById("ball3");
-	divBall4 = document.getElementById("ball4");
-	divBall5 = document.getElementById("ball5");
+	divFoe1 = document.getElementById("foe1");
+	divFoe2 = document.getElementById("foe2");
+	divFoe3 = document.getElementById("foe3");
+	divFoe4 = document.getElementById("foe4");
+	divFoe5 = document.getElementById("foe5");
 	divGame = document.getElementById("game");
 	divPlayer = document.getElementById("player");
 	divPlay = document.getElementById("playGame");
+	divPlay2 = document.getElementById("playGame2");
 	divCountDown = document.getElementById("countDown");
 	divClock = document.getElementById("clock");
 	divScore = document.getElementById("score");
+	gameActive = false;
+	divPlay2.onclick = countDown;
 	divPlay.onclick = start;
 }
 
@@ -22,8 +26,8 @@ function start()
 	divGame.style.cursor = "none";
 
 	//Width and Height 
-	ballWidth = divBall1.offsetWidth;
-	ballHeight = divBall1.offsetHeight;
+	foeWidth = divFoe1.offsetWidth;
+	foeHeight = divFoe1.offsetHeight;
 	gameLeft = divGame.offsetLeft;
 	gameWidth = divGame.offsetWidth;
 	gameRight = gameLeft+gameWidth;
@@ -34,18 +38,13 @@ function start()
 	playerHeight = divPlayer.offsetHeight;
 
 	//Set location of player
-	divPlayer.style.left = gameLeft + 700 + "px";
+	divPlayer.style.left = gameLeft + gameWidth/2 - playerWidth/2  + "px";
 	divPlayer.style.top = gameTop + 450 + "px";
 
-	//Ball Location
-	enemy1 = new enemy(divBall1,locRand(10,700),locRand(10,200));
-	enemy2 = new enemy(divBall2,locRand(10,700),locRand(10,200));
-	enemy3 = new enemy(divBall3,locRand(10,700),locRand(10,200));
-	enemy4 = new enemy(divBall4,locRand(10,700),locRand(10,200));
-	enemy5 = new enemy(divBall5,locRand(10,700),locRand(10,200));
-
 	//Variable Initialization
+	level = 1;
 	counter = 0;
+	countDownCounter = 4;
 	points = 0;
 
 	//Get keystrokes
@@ -59,24 +58,59 @@ function start()
 		}
 	});
 
-
-	move_it();
-	Clock();
+	start_game();
 }
 
-function move_it()
+function start_game(){
+	divPlay2.style.display = "block";
+	if (level = 1){
+		//Enemy location
+		enemy1 = new enemy(divFoe1,locRand(10,700),locRand(10,200));
+		enemy2 = new enemy(divFoe2,locRand(10,700),locRand(10,200));
+		enemy3 = new enemy(divFoe3,locRand(10,700),locRand(10,200));
+	}
+}
+
+function level_init()
 {
-	//Current player position
-	playerLeft = divPlayer.offsetLeft;
-	playerRight = playerLeft+playerWidth;
+	gameActive = true;
+	divPlay2.style.display = "none";
+	
+	//Levels
+	if (level == 1){
+		level1();
+	}
+	
+}
+
+function level1()
+{
+	if (!gameActive)
+		return;
 
 	animate_enemy(enemy1);
 	animate_enemy(enemy2);
 	animate_enemy(enemy3);
-	animate_enemy(enemy4);
-	animate_enemy(enemy5);
+	
+	setTimeout("level1()",10);
+}
 
-	setTimeout("move_it()",10); 
+function clearScreen()
+{
+
+}
+
+function shoot()
+{
+	if(gameActive)
+		
+}
+
+function animate_ball(b)
+{
+	//Current player position
+	playerLeft = divPlayer.offsetLeft;
+	playerRight = playerLeft+playerWidth;
 }
 
 function animate_enemy(en)
@@ -87,44 +121,44 @@ function animate_enemy(en)
 	en.addEnergyLossY(0.1);
 
 	//Calculate Vertical Movement
-	en.accelerateY(0.5);  //Gravity
+	en.accelerateY(0.05);  //Gravity
 	en.changeY();
 	
 	//Horizontal wall collison detection
-	if(en.xLoc<gameLeft || en.xLoc+ballWidth>gameRight)
+	if(en.xLoc<gameLeft || en.xLoc+foeWidth>gameRight)
 	{	
 		en.reverseX();
 	}
 
 	//Vertical collision detection
-	if(en.yLoc+ballHeight>gameBottom)
+	if(en.yLoc+foeHeight>gameBottom)
 	{
 		en.fixVerticalLocation();
 		en.reverseY();
-		en.addEnergyLossY(0.3);
+		en.addEnergyLossY(0.2);
 	}
 }
 
-function enemy(ball, xLoc, yLoc) {
+function enemy(foe, xLoc, yLoc) {
 	//Initalization
 	this.xLoc = gameLeft + xLoc;
 	this.yLoc = gameTop + yLoc;
 	//this.dx = Math.round(Math.random())*(-6) + 3; //Either -3 or 3
 	this.dx = -6 + Math.floor(Math.random()*13); //Between -3 to 3
 	this.dy = 0.0;
-	this.ball = ball;
+	this.foe = foe;
 	this.acceleration = 0.5;
 	//Initial position
-	ball.style.left =  this.xLoc + "px";
-	ball.style.top = this.yLoc + "px";
+	foe.style.left =  this.xLoc + "px";
+	foe.style.top = this.yLoc + "px";
 	//Mutator
 	this.changeX = function() {
 		this.xLoc = this.xLoc + this.dx;
-		ball.style.left = this.xLoc + "px";
+		foe.style.left = this.xLoc + "px";
 	};
 	this.changeY = function() {
 		this.yLoc = this.yLoc + this.dy;
-		ball.style.top = this.yLoc + "px";
+		foe.style.top = this.yLoc + "px";
 	};
 	this.reverseX = function() {
 		this.dx = this.dx*-1;
@@ -137,7 +171,7 @@ function enemy(ball, xLoc, yLoc) {
 	};
 	this.fixVerticalLocation = function() {
 		this.yLoc = gameBottom-20;
-		ball.style.top = this.yLoc + "px";
+		foe.style.top = this.yLoc + "px";
 	};
 	this.addEnergyLossY = function(loss) {
 		this.dy = this.dy + loss;
@@ -188,3 +222,18 @@ function moveMouse(e){
 		divPlayer.style.left = gameRight - 20 + "px";
 }
 
+function countDown()
+{
+	divPlay2.style.display = "none";
+	countDownCounter--;
+	if (countDownCounter== 0)
+	{
+		divCountDown.innerHTML = "";
+		setTimeout("Clock()",1000);
+		level_init();
+	}
+	else{
+		divCountDown.innerHTML = countDownCounter;
+		setTimeout("countDown()",1000);
+	}
+}
