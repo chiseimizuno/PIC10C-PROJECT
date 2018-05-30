@@ -21,7 +21,7 @@ function init()
 function start()
 {
 	//Click Event
-	//document.onmousemove = moveMouse;
+	document.onmousemove = moveMouse;
 	divPlay.style.display = "none";
 	divGame.style.cursor = "none";
 
@@ -37,11 +37,13 @@ function start()
 	playerWidth = divPlayer.offsetWidth;
 	playerHeight = divPlayer.offsetHeight;
 
+
 	//Set location of player
 	divPlayer.style.left = gameLeft + gameWidth/2 - playerWidth/2  + "px";
 	divPlayer.style.top = gameTop + 450 + "px";
 
 	//Variable Initialization
+	angle = 0;
 	level = 1;
 	counter = 0;
 	countDownCounter = 4;
@@ -50,14 +52,18 @@ function start()
 	//Get keystrokes
 	keyPressed = 0;
 	document.addEventListener("keydown",function(e){
-		if (e.which == 65){
-			divPlayer.style.left = parseInt(divPlayer.style.left)-25+"px";
+		if (e.which == 65 && angle > -3){
+			 angle--;
 		}
-		if (e.which == 68){
-			divPlayer.style.left = parseInt(divPlayer.style.left)+25+"px";
+		if (e.which == 68 && angle < 3){
+			angle++;
 		}
+		divScore.innerHTML = angle;
 	});
 
+	//Make balls
+	b1 = new animatedObject(divBall1,-5000,-5000);
+	b1Active = false;
 	start_game();
 }
 
@@ -65,9 +71,12 @@ function start_game(){
 	divPlay2.style.display = "block";
 	if (level = 1){
 		//Enemy location
-		enemy1 = new enemy(divFoe1,locRand(10,700),locRand(10,200));
-		enemy2 = new enemy(divFoe2,locRand(10,700),locRand(10,200));
-		enemy3 = new enemy(divFoe3,locRand(10,700),locRand(10,200));
+		enemy1 = new animatedObject(divFoe1,locRand(10,700),locRand(10,200));
+		enemy2 = new animatedObject(divFoe2,locRand(10,700),locRand(10,200));
+		enemy3 = new animatedObject(divFoe3,locRand(10,700),locRand(10,200));
+		enemy1.dx = -6 + Math.floor(Math.random()*13);
+		enemy2.dx = -6 + Math.floor(Math.random()*13);
+		enemy3.dx = -6 + Math.floor(Math.random()*13);
 	}
 }
 
@@ -102,19 +111,62 @@ function clearScreen()
 
 function shoot()
 {
-	if(gameActive)
+	if(gameActive){
+
+		//Current player position
+		playerLeft = divPlayer.offsetLeft;
+		playerRight = playerLeft+playerWidth;
+		b1.xLoc = playerLeft-playerWidth/2;
+		b1.yLoc = divPlayer.offsetTop;
+		b1.dy = -18;
+		b1.dx = angle*3;
+		//Move Ball
+		if (!b1Active)
+		{
+			animate_ball(b1);
+			b1Active = true;
+		}
+		
+	}
 		
 }
 
+
 function animate_ball(b)
 {
-	//Current player position
-	playerLeft = divPlayer.offsetLeft;
-	playerRight = playerLeft+playerWidth;
+	if(!gameActive)
+		return;
+	b.changeX();
+	b.addEnergyLossX(0.01);
+	b.addEnergyLossY(0.3);
+
+	//Calculate Vertical Movement
+	b.accelerateY(0.1);  //Gravity
+	b.changeY();
+		
+
+	//Horizontal wall collison detection
+	if(b.xLoc<gameLeft || b.xLoc+foeWidth>gameRight)
+	{	
+		b.reverseX();
+	}
+
+	//Vertical collision detection
+	if(b.yLoc+foeHeight>gameBottom)
+	{
+		b.fixVerticalLocation(25);
+		b.reverseY();
+		b.addEnergyLossY(2);
+	}
+	setTimeout("animate_ball(b1)",10);
+
+
 }
 
 function animate_enemy(en)
 {
+	if(!gameActive)
+		return;
 	//Calculate Horizontal Movement
 	en.changeX();
 	en.addEnergyLossX(0.005);
@@ -133,32 +185,34 @@ function animate_enemy(en)
 	//Vertical collision detection
 	if(en.yLoc+foeHeight>gameBottom)
 	{
-		en.fixVerticalLocation();
+		en.fixVerticalLocation(27);
 		en.reverseY();
-		en.addEnergyLossY(0.2);
+		en.addEnergyLossY(0.3);
 	}
+
+
 }
 
-function enemy(foe, xLoc, yLoc) {
+function animatedObject(item, xLoc, yLoc) {
 	//Initalization
 	this.xLoc = gameLeft + xLoc;
 	this.yLoc = gameTop + yLoc;
 	//this.dx = Math.round(Math.random())*(-6) + 3; //Either -3 or 3
-	this.dx = -6 + Math.floor(Math.random()*13); //Between -3 to 3
+	this.dx = 0.0; //Between -3 to 3
 	this.dy = 0.0;
-	this.foe = foe;
+	this.item = item;
 	this.acceleration = 0.5;
 	//Initial position
-	foe.style.left =  this.xLoc + "px";
-	foe.style.top = this.yLoc + "px";
+	item.style.left =  this.xLoc + "px";
+	item.style.top = this.yLoc + "px";
 	//Mutator
 	this.changeX = function() {
 		this.xLoc = this.xLoc + this.dx;
-		foe.style.left = this.xLoc + "px";
+		item.style.left = this.xLoc + "px";
 	};
 	this.changeY = function() {
 		this.yLoc = this.yLoc + this.dy;
-		foe.style.top = this.yLoc + "px";
+		item.style.top = this.yLoc + "px";
 	};
 	this.reverseX = function() {
 		this.dx = this.dx*-1;
@@ -169,9 +223,9 @@ function enemy(foe, xLoc, yLoc) {
 	this.accelerateY = function(acc) {
 		this.dy = this.dy + acc;
 	};
-	this.fixVerticalLocation = function() {
-		this.yLoc = gameBottom-20;
-		foe.style.top = this.yLoc + "px";
+	this.fixVerticalLocation = function(fix) {
+		this.yLoc = gameBottom-fix;
+		item.style.top = this.yLoc + "px";
 	};
 	this.addEnergyLossY = function(loss) {
 		this.dy = this.dy + loss;
@@ -229,11 +283,11 @@ function countDown()
 	if (countDownCounter== 0)
 	{
 		divCountDown.innerHTML = "";
-		setTimeout("Clock()",1000);
+		setTimeout("Clock()",100);
 		level_init();
 	}
 	else{
 		divCountDown.innerHTML = countDownCounter;
-		setTimeout("countDown()",1000);
+		setTimeout("countDown()",100);
 	}
 }
