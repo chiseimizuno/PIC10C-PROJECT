@@ -64,11 +64,11 @@
 #display{
 	text-align:center;
 	float:top;
-	width:800px;
+	width:850px;
 	height:70px;
 	margin-top:20px;
 	margin-left:20px;
-	padding:0px 10px;
+	padding:0px 0px;
 	border:double black 3px;
 	background: rgba(245, 255, 250, 0.8);
 }
@@ -89,11 +89,11 @@
 
 #game{
 	float:bottom;
-	width:800px;
+	width:850px;
 	height:500px;
 	margin-top:7px;
 	margin-left:20px;
-	padding:0px 10px;
+	padding:0px 0px;
 	border:double black 3px;
 	background: rgba(245, 255, 250, 0.5);
 }
@@ -121,9 +121,7 @@
 	position:absolute;
 	left:-5000px;
 	height:100px;
-	width:10px;
-	background-color:white;
-	border:black 2px solid;
+	width:70px;
 }
 
 
