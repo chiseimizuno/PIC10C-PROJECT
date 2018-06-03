@@ -2,10 +2,6 @@ function init()
 {
 	divBall1 = document.getElementById("ball1");
 	divFoe1 = document.getElementById("foe1");
-	divFoe2 = document.getElementById("foe2");
-	divFoe3 = document.getElementById("foe3");
-	divFoe4 = document.getElementById("foe4");
-	divFoe5 = document.getElementById("foe5");
 	divGame = document.getElementById("game");
 	divPlayer = document.getElementById("player");
 	divPlay = document.getElementById("playGame");
@@ -77,19 +73,21 @@ function start()
 
 function start_game(){
 	divPlay2.style.display = "block";
-	if (level = 1){
-		//Enemy location
-		enemy1 = new animatedObject(divFoe1,locRand(10,700),locRand(10,200));
-		enemy2 = new animatedObject(divFoe2,locRand(10,700),locRand(10,200));
-		enemy3 = new animatedObject(divFoe3,locRand(10,700),locRand(10,200));
-		enemy1.dx = -6 + Math.floor(Math.random()*13);
-		enemy2.dx = -6 + Math.floor(Math.random()*13);
-		enemy3.dx = -6 + Math.floor(Math.random()*13);
+	if (level == 1){
+		numEnemy=5;
 	}
+	//Enemy location
+	e1 = new Array(numEnemy);
+	for (var i = 0; i < numEnemy; i++){
+		e1[i] = new animatedObject(document.getElementById("foe"+(i+1)),locRand(10,700),locRand(10,200));
+		e1[i].dx = -6 + Math.floor(Math.random()*13);
+	}
+	
 }
 
 function level_init()
 {
+	numEnemyLeft=numEnemy;
 	gameActive = true;
 	divPlay2.style.display = "none";
 	
@@ -104,12 +102,15 @@ function level1()
 {
 	if (!gameActive)
 		return;
-
-	animate_enemy(enemy1);
-	animate_enemy(enemy2);
-	animate_enemy(enemy3);
-	
+	for (var i = 0; i < numEnemy; i++)
+	{
+		animate_enemy(e1[i]);
+	}	
 	setTimeout("level1()",10);
+}
+
+function level_clear(){
+	alert(1);
 }
 
 function clearScreen()
@@ -120,6 +121,7 @@ function clearScreen()
 function shoot()
 {
 	if(gameActive && canShoot){
+		b1.enableVisibility();
 		canShoot = false;
 		setTimeout(function(){canShoot=true;},600);
 		//Current player position
@@ -174,19 +176,19 @@ function animate_ball(b)
 
 function animate_enemy(en)
 {
-	if(!gameActive)
+	if(!gameActive || !en.isVisible)
 		return;
 	//Calculate Horizontal Movement
 	en.changeX();
-	en.addEnergyLossX(0.005);
-	en.addEnergyLossY(0.1);
+	en.addEnergyLossX(0.001);
+	en.addEnergyLossY(0.05);
 
 	//Calculate Vertical Movement
 	en.accelerateY(0.05);  //Gravity
 	en.changeY();
 	
 	//Horizontal wall collison detection
-	if(en.xLoc<gameLeft || en.xLoc+foeWidth>gameRight)
+	if(en.xLoc<gameLeft+2 || en.xLoc+foeWidth>gameRight-2)
 	{	
 		en.reverseX();
 	}
@@ -202,16 +204,26 @@ function animate_enemy(en)
 	if(en.yLoc+foeHeight> b1.yLoc && en.yLoc < b1.yLoc+ballHeight
 		&& en.xLoc+foeWidth> b1.xLoc && en.xLoc < b1.xLoc+ballWidth)
 	{
-		ballHit();
+		ball_hit(en);
 	}
-
-
 }
+
+function ball_hit(en)
+{
+	b1.disableVisibility();
+	en.disableVisibility();
+	numEnemyLeft--;
+	divScore.innerHTML=numEnemyLeft;
+	if (numEnemyLeft == 0)
+		level_clear();
+}
+
 
 function animatedObject(item, xLoc, yLoc) {
 	//Initalization
 	this.xLoc = gameLeft + xLoc;
 	this.yLoc = gameTop + yLoc;
+	this.isVisible = true;
 	//this.dx = Math.round(Math.random())*(-6) + 3; //Either -3 or 3
 	this.dx = 0.0; //Between -3 to 3
 	this.dy = 0.0;
@@ -255,6 +267,15 @@ function animatedObject(item, xLoc, yLoc) {
 		}
 		this.dx = this.dx - loss;
 	};	
+	this.disableVisibility = function() {
+			this.xLoc = -5000;
+			this.isVisible = false;
+			this.item.style.display = "none";
+	};
+	this.enableVisibility = function() {
+			this.isVisible = true;
+			this.item.style.display = "block";
+	};
 }
 
 
