@@ -1,29 +1,32 @@
 function init()
 {
 	divBall1 = document.getElementById("ball1");
-	divBall2 = document.getElementById("ball2");
-	divBall3 = document.getElementById("ball3");
-	divBall4 = document.getElementById("ball4");
-	divBall5 = document.getElementById("ball5");
+	divFoe1 = document.getElementById("foe1");
 	divGame = document.getElementById("game");
 	divPlayer = document.getElementById("player");
 	divPlay = document.getElementById("playGame");
+	divPlay2 = document.getElementById("playGame2");
 	divCountDown = document.getElementById("countDown");
 	divClock = document.getElementById("clock");
 	divScore = document.getElementById("score");
+	gameActive = false;
+	mouseActive = false;
+	divPlay2.onclick = continue_game;
 	divPlay.onclick = start;
 }
 
 function start()
 {
-	//Click Event
-	//document.onmousemove = moveMouse;
 	divPlay.style.display = "none";
-	divGame.style.cursor = "none";
+
+	//Click Event
+	document.onmousemove = moveMouse;
 
 	//Width and Height 
 	ballWidth = divBall1.offsetWidth;
 	ballHeight = divBall1.offsetHeight;
+	foeWidth = divFoe1.offsetWidth;
+	foeHeight = divFoe1.offsetHeight;
 	gameLeft = divGame.offsetLeft;
 	gameWidth = divGame.offsetWidth;
 	gameRight = gameLeft+gameWidth;
@@ -33,98 +36,210 @@ function start()
 	playerWidth = divPlayer.offsetWidth;
 	playerHeight = divPlayer.offsetHeight;
 
-	//Set location of player
-	divPlayer.style.left = gameLeft + 700 + "px";
-	divPlayer.style.top = gameTop + 450 + "px";
 
-	//Ball Location
-	enemy1 = new enemy(divBall1,locRand(10,700),locRand(10,200));
-	enemy2 = new enemy(divBall2,locRand(10,700),locRand(10,200));
-	enemy3 = new enemy(divBall3,locRand(10,700),locRand(10,200));
-	enemy4 = new enemy(divBall4,locRand(10,700),locRand(10,200));
-	enemy5 = new enemy(divBall5,locRand(10,700),locRand(10,200));
+	//Set location of player
+	divPlayer.style.left = gameLeft + gameWidth/2 - playerWidth/2  + "px";
+	divPlayer.style.top = gameTop + 440 + "px";
 
 	//Variable Initialization
+	canShoot = true;
+	angle = 0;
+	level = 1;
 	counter = 0;
+	countDownCounter = 4;
 	points = 0;
 
 	//Get keystrokes
 	keyPressed = 0;
 	document.addEventListener("keydown",function(e){
-		if (e.which == 65){
-			divPlayer.style.left = parseInt(divPlayer.style.left)-25+"px";
+		if (e.which == 65 && angle > -3){
+			 angle--;
+			 rotateAngle = angle*5;
+			 divPlayer.style.transform = "rotate("+rotateAngle+"deg)";
 		}
-		if (e.which == 68){
-			divPlayer.style.left = parseInt(divPlayer.style.left)+25+"px";
+		if (e.which == 68 && angle < 3){
+			angle++;
+			rotateAngle = angle*5;
+			divPlayer.style.transform = "rotate("+rotateAngle+"deg)";
 		}
+		divScore.innerHTML = angle;
 	});
 
-
-	move_it();
-	Clock();
+	//Make balls
+	b1 = new animatedObject(divBall1,-5000,-5000);
+	b1Active = false;
+	start_game();
 }
 
-function move_it()
+function start_game(){
+	divPlay2.style.display = "block";
+	if (level == 1){
+		numEnemy=5;
+	}
+	//Enemy location
+	e1 = new Array(numEnemy);
+	for (var i = 0; i < numEnemy; i++){
+		e1[i] = new animatedObject(document.getElementById("foe"+(i+1)),locRand(10,700),locRand(10,200));
+		e1[i].dx = -6 + Math.floor(Math.random()*13);
+	}
+	
+}
+
+function level_init()
 {
-	//Current player position
-	playerLeft = divPlayer.offsetLeft;
-	playerRight = playerLeft+playerWidth;
+	numEnemyLeft=numEnemy;
+	gameActive = true;
+	divPlay2.style.display = "none";
+	
+	//Levels
+	if (level == 1){
+		level1();
+	}
+	
+}
 
-	animate_enemy(enemy1);
-	animate_enemy(enemy2);
-	animate_enemy(enemy3);
-	animate_enemy(enemy4);
-	animate_enemy(enemy5);
+function level1()
+{
+	if (!gameActive)
+		return;
+	for (var i = 0; i < numEnemy; i++)
+	{
+		animate_enemy(e1[i]);
+	}	
+	setTimeout("level1()",10);
+}
 
-	setTimeout("move_it()",10); 
+function level_clear(){
+	alert(1);
+}
+
+function clearScreen()
+{
+
+}
+
+function shoot()
+{
+	if(gameActive && canShoot){
+		b1.enableVisibility();
+		canShoot = false;
+		setTimeout(function(){canShoot=true;},600);
+		//Current player position
+		playerLeft = divPlayer.offsetLeft;
+		playerRight = playerLeft+20;
+		b1.xLoc = playerLeft+playerWidth/4;
+		b1.yLoc = divPlayer.offsetTop;
+		b1.dy = -18;
+		b1.dx = angle*3;
+		//Move Ball
+		if (!b1Active)
+		{
+			animate_ball(b1);
+			b1Active = true;
+		}
+		
+	}
+		
+}
+
+
+function animate_ball(b)
+{
+	if(!gameActive)
+		return;
+	b.changeX();
+	b.addEnergyLossX(0.01);
+	b.addEnergyLossY(0.3);
+
+	//Calculate Vertical Movement
+	b.accelerateY(0.1);  //Gravity
+	b.changeY();
+		
+
+	//Horizontal wall collison detection
+	if(b.xLoc<gameLeft || b.xLoc+foeWidth>gameRight)
+	{	
+		b.reverseX();
+	}
+
+	//Vertical collision detection
+	if(b.yLoc+foeHeight>gameBottom)
+	{
+		b.fixVerticalLocation(25);
+		b.reverseY();
+		b.addEnergyLossY(2);
+	}
+	setTimeout("animate_ball(b1)",10);
+
+
 }
 
 function animate_enemy(en)
 {
+	if(!gameActive || !en.isVisible)
+		return;
 	//Calculate Horizontal Movement
 	en.changeX();
-	en.addEnergyLossX(0.005);
-	en.addEnergyLossY(0.1);
+	en.addEnergyLossX(0.001);
+	en.addEnergyLossY(0.05);
 
 	//Calculate Vertical Movement
-	en.accelerateY(0.5);  //Gravity
+	en.accelerateY(0.05);  //Gravity
 	en.changeY();
 	
 	//Horizontal wall collison detection
-	if(en.xLoc<gameLeft || en.xLoc+ballWidth>gameRight)
+	if(en.xLoc<gameLeft+2 || en.xLoc+foeWidth>gameRight-2)
 	{	
 		en.reverseX();
 	}
 
 	//Vertical collision detection
-	if(en.yLoc+ballHeight>gameBottom)
+	if(en.yLoc+foeHeight>gameBottom)
 	{
-		en.fixVerticalLocation();
+		en.fixVerticalLocation(27);
 		en.reverseY();
 		en.addEnergyLossY(0.3);
 	}
+	//Ball collision detection
+	if(en.yLoc+foeHeight> b1.yLoc && en.yLoc < b1.yLoc+ballHeight
+		&& en.xLoc+foeWidth> b1.xLoc && en.xLoc < b1.xLoc+ballWidth)
+	{
+		ball_hit(en);
+	}
 }
 
-function enemy(ball, xLoc, yLoc) {
+function ball_hit(en)
+{
+	b1.disableVisibility();
+	en.disableVisibility();
+	numEnemyLeft--;
+	divScore.innerHTML=numEnemyLeft;
+	if (numEnemyLeft == 0)
+		level_clear();
+}
+
+
+function animatedObject(item, xLoc, yLoc) {
 	//Initalization
 	this.xLoc = gameLeft + xLoc;
 	this.yLoc = gameTop + yLoc;
+	this.isVisible = true;
 	//this.dx = Math.round(Math.random())*(-6) + 3; //Either -3 or 3
-	this.dx = -6 + Math.floor(Math.random()*13); //Between -3 to 3
+	this.dx = 0.0; //Between -3 to 3
 	this.dy = 0.0;
-	this.ball = ball;
+	this.item = item;
 	this.acceleration = 0.5;
 	//Initial position
-	ball.style.left =  this.xLoc + "px";
-	ball.style.top = this.yLoc + "px";
+	item.style.left =  this.xLoc + "px";
+	item.style.top = this.yLoc + "px";
 	//Mutator
 	this.changeX = function() {
 		this.xLoc = this.xLoc + this.dx;
-		ball.style.left = this.xLoc + "px";
+		item.style.left = this.xLoc + "px";
 	};
 	this.changeY = function() {
 		this.yLoc = this.yLoc + this.dy;
-		ball.style.top = this.yLoc + "px";
+		item.style.top = this.yLoc + "px";
 	};
 	this.reverseX = function() {
 		this.dx = this.dx*-1;
@@ -135,9 +250,9 @@ function enemy(ball, xLoc, yLoc) {
 	this.accelerateY = function(acc) {
 		this.dy = this.dy + acc;
 	};
-	this.fixVerticalLocation = function() {
-		this.yLoc = gameBottom-20;
-		ball.style.top = this.yLoc + "px";
+	this.fixVerticalLocation = function(fix) {
+		this.yLoc = gameBottom-fix;
+		item.style.top = this.yLoc + "px";
 	};
 	this.addEnergyLossY = function(loss) {
 		this.dy = this.dy + loss;
@@ -152,6 +267,15 @@ function enemy(ball, xLoc, yLoc) {
 		}
 		this.dx = this.dx - loss;
 	};	
+	this.disableVisibility = function() {
+			this.xLoc = -5000;
+			this.isVisible = false;
+			this.item.style.display = "none";
+	};
+	this.enableVisibility = function() {
+			this.isVisible = true;
+			this.item.style.display = "block";
+	};
 }
 
 
@@ -175,16 +299,39 @@ function Clock()
 }
 
 function moveMouse(e){
+	if (!mouseActive)
+		return;
 	prevY = divPlayer.offsetTop;
 	x=e.pageX;
 	y=e.pageY;
 
 	//Move horizontal within border
-	if (x > gameLeft+ 10 && x < gameRight-10)
+	if (x > gameLeft + playerWidth/2 && x < gameRight - playerWidth/2)
 		divPlayer.style.left = x - (playerWidth/2) + "px";
-	else if (x < gameLeft + 5)
+	else if (x < gameLeft + playerWidth)
 		divPlayer.style.left = gameLeft + 5 + "px";
-	else if (x > gameRight-10)
-		divPlayer.style.left = gameRight - 20 + "px";
+	else if (x > gameRight - playerWidth)
+		divPlayer.style.left = gameRight - playerWidth + "px";
 }
 
+function continue_game() {
+	divGame.style.cursor = "none";
+	divPlay2.style.display = "none";
+	mouseActive = true;
+	countDown();
+}
+
+function countDown()
+{
+	countDownCounter--;
+	if (countDownCounter== 0)
+	{
+		divCountDown.innerHTML = "";
+		setTimeout("Clock()",1000);
+		level_init();
+	}
+	else{
+		divCountDown.innerHTML = countDownCounter;
+		setTimeout("countDown()",300);
+	}
+}
