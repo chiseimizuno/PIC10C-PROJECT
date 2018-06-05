@@ -1,6 +1,8 @@
-<div id="foeL1" class="foeL"><img src="foeL.png" alt="foeL" /></div>
-    <div id="foeL2" class="foeL"><img src="foeL.png" alt="foeL" /></div>
-    <div id="foeL3" class="foeL"><img src="foeL.png" alt="foeL" /></div>
-    <div id="foeL4" class="foeL"><img src="foeL.png" alt="foeL" /></div>
-    <div id="foeL5" class="foeL"><img src="foeL.png" alt="foeL" /></div>
-    <div id="foeL6" class="foeL"><img src="foeL.png" alt="foeL" /></div>
+<div id="foeXL1" class="foeXL"><img src="foeXL.png" alt="foeXL" /></div>
+    <div id="foeXL2" class="foeXL"><img src="foeXL.png" alt="foeXL" /></div>
+    <div id="foeXL3" class="foeXL"><img src="foeXL.png" alt="foeXL" /></div>
+    <div id="foeXL4" class="foeXL"><img src="foeXL.png" alt="foeXL" /></div>
+    <div id="foeXL5" class="foeXL"><img src="foeXL.png" alt="foeXL" /></div>
+    <div id="foeXL6" class="foeXL"><img src="foeXL.png" alt="foeXL" /></div>
+
+    	border:black solid 2px;
