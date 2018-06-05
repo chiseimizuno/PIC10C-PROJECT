@@ -1,9 +1,9 @@
 function init()
 {
 	divBall1 = document.getElementById("ball1");
-	divFoe1 = document.getElementById("foe1");
 	divGame = document.getElementById("game");
 	divPlayer = document.getElementById("player");
+	divPlayerIMG = document.getElementById("playerIMG");
 	divPlay = document.getElementById("playGame");
 	divPlay2 = document.getElementById("playGame2");
 	divCountDown = document.getElementById("countDown");
@@ -23,10 +23,6 @@ function start()
 	document.onmousemove = moveMouse;
 
 	//Width and Height 
-	ballWidth = divBall1.offsetWidth;
-	ballHeight = divBall1.offsetHeight;
-	foeWidth = divFoe1.offsetWidth;
-	foeHeight = divFoe1.offsetHeight;
 	gameLeft = divGame.offsetLeft;
 	gameWidth = divGame.offsetWidth;
 	gameRight = gameLeft+gameWidth;
@@ -40,6 +36,7 @@ function start()
 	//Set location of player
 	divPlayer.style.left = gameLeft + gameWidth/2 - playerWidth/2  + "px";
 	divPlayer.style.top = gameTop + 440 + "px";
+	divPlayer.style.top = gameTop + 410 + "px"; //REAL	
 
 	//Variable Initialization
 	canShoot = true;
@@ -48,6 +45,8 @@ function start()
 	counter = 0;
 	countDownCounter = 4;
 	points = 0;
+	playerAnimation = 0;
+	playerAnimationOn = true;
 
 	//Get keystrokes
 	keyPressed = 0;
@@ -66,6 +65,7 @@ function start()
 	});
 
 	//Make balls
+
 	b1 = new animatedObject(divBall1,-5000,-5000);
 	b1Active = false;
 	start_game();
@@ -73,15 +73,18 @@ function start()
 
 function start_game(){
 	divPlay2.style.display = "block";
+
 	if (level == 1){
-		numEnemy=5;
+		numEnemy=1;
 	}
 	//Enemy location
 	e1 = new Array(numEnemy);
 	for (var i = 0; i < numEnemy; i++){
-		e1[i] = new animatedObject(document.getElementById("foe"+(i+1)),locRand(10,700),locRand(10,200));
+		e1[i] = new animatedObject(document.getElementById("foeXXL"+(i+1)),locRand(10,700),locRand(10,100));
 		e1[i].dx = -6 + Math.floor(Math.random()*13);
 	}
+	//BOSS
+	//e1[0] = new animatedObject(document.getElementById("foeXXL"+(i+1)),300,300);
 	
 }
 
@@ -102,11 +105,18 @@ function level1()
 {
 	if (!gameActive)
 		return;
+	/*
 	for (var i = 0; i < numEnemy; i++)
 	{
 		animate_enemy(e1[i]);
 	}	
+	*/
+	//Boss
+	animate_enemy(e1[0],1,0,0,0);
+
 	setTimeout("level1()",10);
+
+
 }
 
 function level_clear(){
@@ -157,15 +167,15 @@ function animate_ball(b)
 		
 
 	//Horizontal wall collison detection
-	if(b.xLoc<gameLeft || b.xLoc+foeWidth>gameRight)
+	if(b.xLoc<gameLeft || b.xLoc+b.width>gameRight)
 	{	
 		b.reverseX();
 	}
 
 	//Vertical collision detection
-	if(b.yLoc+foeHeight>gameBottom)
+	if(b.yLoc+b.height>gameBottom)
 	{
-		b.fixVerticalLocation(25);
+		b.fixVerticalLocation();
 		b.reverseY();
 		b.addEnergyLossY(2);
 	}
@@ -174,35 +184,35 @@ function animate_ball(b)
 
 }
 
-function animate_enemy(en)
+function animate_enemy(en, acc = 0.05,lossX = 0.001, lossY=0.05, lossY2=0.3)
 {
 	if(!gameActive || !en.isVisible)
 		return;
 	//Calculate Horizontal Movement
 	en.changeX();
-	en.addEnergyLossX(0.001);
-	en.addEnergyLossY(0.05);
-
+	en.addEnergyLossX(lossX);
+	
 	//Calculate Vertical Movement
-	en.accelerateY(0.05);  //Gravity
+	en.accelerateY(acc);  //Gravity
+	en.addEnergyLossY(lossY);
 	en.changeY();
 	
 	//Horizontal wall collison detection
-	if(en.xLoc<gameLeft+2 || en.xLoc+foeWidth>gameRight-2)
+	if(en.xLoc<gameLeft+2 || en.xLoc+en.width>gameRight-2)
 	{	
 		en.reverseX();
 	}
 
 	//Vertical collision detection
-	if(en.yLoc+foeHeight>gameBottom)
+	if(en.yLoc+en.height>gameBottom)
 	{
-		en.fixVerticalLocation(27);
+		en.fixVerticalLocation();
 		en.reverseY();
-		en.addEnergyLossY(0.3);
+		en.addEnergyLossY(lossY2);
 	}
 	//Ball collision detection
-	if(en.yLoc+foeHeight> b1.yLoc && en.yLoc < b1.yLoc+ballHeight
-		&& en.xLoc+foeWidth> b1.xLoc && en.xLoc < b1.xLoc+ballWidth)
+	if(en.yLoc+en.height> b1.yLoc && en.yLoc < b1.yLoc+b1.height
+		&& en.xLoc+en.width> b1.xLoc && en.xLoc < b1.xLoc+b1.width)
 	{
 		ball_hit(en);
 	}
@@ -223,6 +233,8 @@ function animatedObject(item, xLoc, yLoc) {
 	//Initalization
 	this.xLoc = gameLeft + xLoc;
 	this.yLoc = gameTop + yLoc;
+	this.height = item.offsetHeight;
+	this.width = item.offsetWidth;
 	this.isVisible = true;
 	//this.dx = Math.round(Math.random())*(-6) + 3; //Either -3 or 3
 	this.dx = 0.0; //Between -3 to 3
@@ -235,11 +247,11 @@ function animatedObject(item, xLoc, yLoc) {
 	//Mutator
 	this.changeX = function() {
 		this.xLoc = this.xLoc + this.dx;
-		item.style.left = this.xLoc + "px";
+		this.item.style.left = this.xLoc + "px";
 	};
 	this.changeY = function() {
 		this.yLoc = this.yLoc + this.dy;
-		item.style.top = this.yLoc + "px";
+		this.item.style.top = this.yLoc + "px";
 	};
 	this.reverseX = function() {
 		this.dx = this.dx*-1;
@@ -250,9 +262,9 @@ function animatedObject(item, xLoc, yLoc) {
 	this.accelerateY = function(acc) {
 		this.dy = this.dy + acc;
 	};
-	this.fixVerticalLocation = function(fix) {
-		this.yLoc = gameBottom-fix;
-		item.style.top = this.yLoc + "px";
+	this.fixVerticalLocation = function() {
+		this.yLoc = gameBottom-this.height;
+		this.item.style.top = this.yLoc + "px";
 	};
 	this.addEnergyLossY = function(loss) {
 		this.dy = this.dy + loss;
@@ -302,6 +314,7 @@ function moveMouse(e){
 	if (!mouseActive)
 		return;
 	prevY = divPlayer.offsetTop;
+
 	x=e.pageX;
 	y=e.pageY;
 
@@ -312,6 +325,19 @@ function moveMouse(e){
 		divPlayer.style.left = gameLeft + 5 + "px";
 	else if (x > gameRight - playerWidth)
 		divPlayer.style.left = gameRight - playerWidth + "px";
+
+	divPlayer.src = "foe.png";
+	//Player Animation
+	if (playerAnimationOn)
+	{
+		playerAnimationOn=false;
+		setTimeout(function(){playerAnimationOn=true;},40);
+		playerAnimation++;
+		if(playerAnimation%2 == 0)
+			divPlayerIMG.src = "player1.png";
+		else
+			divPlayerIMG.src = "player2.png";
+	}
 }
 
 function continue_game() {

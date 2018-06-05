@@ -98,7 +98,6 @@
 	background: rgba(245, 255, 250, 0.5);
 }
 
-
 .foe{
 	position:absolute;
 	left:-5000px;
@@ -106,6 +105,32 @@
 	margin:0px;
 	width:30px;
 	height:27px;
+}
+.foeL{
+	position:absolute;
+	left:-5000px;
+	padding:0px;
+	margin:0px;
+	width:68px;
+	height:51px;
+}
+
+.foeXL{
+	position:absolute;
+	left:-5000px;
+	padding:0px;
+	margin:0px;
+	width:95px;
+	height:87px;
+}
+.foeXXL{
+	position:absolute;
+	left:-5000px;
+	padding:0px;
+	margin:0px;
+	width:207px;
+	height:219px;
+	border:black solid 2px;
 }
 
 .ball{
