@@ -8,7 +8,7 @@ function init()
 	divPlay2 = document.getElementById("playGame2");
 	divCountDown = document.getElementById("countDown");
 	divClock = document.getElementById("clock");
-	divScore = document.getElementById("score");
+	//divScore = document.getElementById("score");
 	gameActive = false;
 	mouseActive = false;
 	divPlay2.onclick = continue_game;
@@ -32,13 +32,13 @@ function start()
 	playerWidth = divPlayer.offsetWidth;
 	playerHeight = divPlayer.offsetHeight;
 
-
 	//Set location of player
 	divPlayer.style.left = gameLeft + gameWidth/2 - playerWidth/2  + "px";
 	divPlayer.style.top = gameTop + 440 + "px";
 	divPlayer.style.top = gameTop + 410 + "px"; //REAL	
 
 	//Variable Initialization
+	isHit = false;
 	canShoot = true;
 	angle = 0;
 	level = 1;
@@ -47,27 +47,15 @@ function start()
 	points = 0;
 	playerAnimation = 0;
 	playerAnimationOn = true;
+	lives=3;
 
 	//Get keystrokes
-	keyPressed = 0;
-	document.addEventListener("keydown",function(e){
-		if (e.which == 65 && angle > -3){
-			 angle--;
-			 rotateAngle = angle*5;
-			 divPlayer.style.transform = "rotate("+rotateAngle+"deg)";
-		}
-		if (e.which == 68 && angle < 3){
-			angle++;
-			rotateAngle = angle*5;
-			divPlayer.style.transform = "rotate("+rotateAngle+"deg)";
-		}
-		divScore.innerHTML = angle;
-	});
+	keyPressed();
 
-	//Make balls
-
+	//Make ball
 	b1 = new animatedObject(divBall1,-5000,-5000);
 	b1Active = false;
+
 	start_game();
 }
 
@@ -75,17 +63,16 @@ function start_game(){
 	divPlay2.style.display = "block";
 
 	if (level == 1){
-		numEnemy=1;
+		numEnemy=6;
 	}
 	//Enemy location
 	e1 = new Array(numEnemy);
 	for (var i = 0; i < numEnemy; i++){
-		e1[i] = new animatedObject(document.getElementById("foeXXL"+(i+1)),locRand(10,700),locRand(10,100));
+		e1[i] = new animatedObject(document.getElementById("foeXL"+(i+1)),locRand(10,700),locRand(10,100));
 		e1[i].dx = -6 + Math.floor(Math.random()*13);
 	}
 	//BOSS
 	//e1[0] = new animatedObject(document.getElementById("foeXXL"+(i+1)),300,300);
-	
 }
 
 function level_init()
@@ -98,25 +85,20 @@ function level_init()
 	if (level == 1){
 		level1();
 	}
-	
 }
 
 function level1()
 {
 	if (!gameActive)
 		return;
-	/*
 	for (var i = 0; i < numEnemy; i++)
 	{
 		animate_enemy(e1[i]);
 	}	
-	*/
 	//Boss
-	animate_enemy(e1[0],1,0,0,0);
+	//animate_enemy(e1[0],1,0,0,0);
 
-	setTimeout("level1()",10);
-
-
+	setTimeout("level1()",5);
 }
 
 function level_clear(){
@@ -125,15 +107,35 @@ function level_clear(){
 
 function clearScreen()
 {
+	//gameActive = false;
+	for (var i = 0; i < e1.length; i++){
+		//e1[i].xLoc = -1000;
+		//e1[i].changeX();
+		e1[i].item.innerHTML = '<img src="foeWon.png" alt="foe" />';
+		e1[i].dx = 0;
+	}
+}
 
+function game_over()
+{
+	//isHit = false;
+	clearScreen();
+	//alert("GAME OVER");
+	divPlayerIMG.src = "dead.png";
+	divPlayer.style.top = divPlayer.offsetTop - 32 + "px";
+	//divPlayerIMG.style.width = 70 + "px";
+
+	mouseActive = false;
 }
 
 function shoot()
 {
+	if (!mouseActive)
+		return;
 	if(gameActive && canShoot){
 		b1.enableVisibility();
 		canShoot = false;
-		setTimeout(function(){canShoot=true;},600);
+		setTimeout(function(){canShoot=true;},400);
 		//Current player position
 		playerLeft = divPlayer.offsetLeft;
 		playerRight = playerLeft+20;
@@ -147,9 +149,7 @@ function shoot()
 			animate_ball(b1);
 			b1Active = true;
 		}
-		
-	}
-		
+	}	
 }
 
 
@@ -180,8 +180,6 @@ function animate_ball(b)
 		b.addEnergyLossY(2);
 	}
 	setTimeout("animate_ball(b1)",10);
-
-
 }
 
 function animate_enemy(en, acc = 0.05,lossX = 0.001, lossY=0.05, lossY2=0.3)
@@ -210,12 +208,35 @@ function animate_enemy(en, acc = 0.05,lossX = 0.001, lossY=0.05, lossY2=0.3)
 		en.reverseY();
 		en.addEnergyLossY(lossY2);
 	}
-	//Ball collision detection
+	//Ball Collision Detection
 	if(en.yLoc+en.height> b1.yLoc && en.yLoc < b1.yLoc+b1.height
 		&& en.xLoc+en.width> b1.xLoc && en.xLoc < b1.xLoc+b1.width)
 	{
 		ball_hit(en);
 	}
+	//Player Collision Detection
+	if(en.yLoc+en.height > divPlayer.offsetTop + 50
+		&& en.xLoc+en.width > divPlayer.offsetLeft+15 && en.xLoc < divPlayer.offsetLeft+divPlayer.offsetWidth-15)
+		player_hit();
+}
+
+function player_hit()
+{
+	if (isHit)
+		return;
+	lives--;
+	if (lives >= 0)
+		isHit = true;
+		divPlayerIMG.src = "hit.png";
+		divPlayerIMG.style.width = "77px";
+		document.getElementById("life"+(lives+1)).src = "l2.png";
+	if (lives == 0){
+		game_over();
+		return;
+	}
+	if (lives < 0)
+		return;
+	setTimeout(function(){isHit=false;},1000);
 }
 
 function ball_hit(en)
@@ -223,11 +244,9 @@ function ball_hit(en)
 	b1.disableVisibility();
 	en.disableVisibility();
 	numEnemyLeft--;
-	divScore.innerHTML=numEnemyLeft;
 	if (numEnemyLeft == 0)
 		level_clear();
 }
-
 
 function animatedObject(item, xLoc, yLoc) {
 	//Initalization
@@ -319,24 +338,24 @@ function moveMouse(e){
 	y=e.pageY;
 
 	//Move horizontal within border
-	if (x > gameLeft + playerWidth/2 && x < gameRight - playerWidth/2)
+	if (x > gameLeft + playerWidth/2 && x < gameRight - playerWidth/2 - 10)
 		divPlayer.style.left = x - (playerWidth/2) + "px";
 	else if (x < gameLeft + playerWidth)
 		divPlayer.style.left = gameLeft + 5 + "px";
-	else if (x > gameRight - playerWidth)
-		divPlayer.style.left = gameRight - playerWidth + "px";
+	else if (x > gameRight - playerWidth - 50)
+		divPlayer.style.left = gameRight - playerWidth - 10 + "px";
 
-	divPlayer.src = "foe.png";
 	//Player Animation
-	if (playerAnimationOn)
+	if (playerAnimationOn && !isHit)
 	{
+		divPlayerIMG.style.width = "72px"
 		playerAnimationOn=false;
 		setTimeout(function(){playerAnimationOn=true;},40);
 		playerAnimation++;
 		if(playerAnimation%2 == 0)
-			divPlayerIMG.src = "player1.png";
+			divPlayerIMG.src = "p1.png";
 		else
-			divPlayerIMG.src = "player2.png";
+			divPlayerIMG.src = "p2.png";
 	}
 }
 
@@ -360,4 +379,20 @@ function countDown()
 		divCountDown.innerHTML = countDownCounter;
 		setTimeout("countDown()",300);
 	}
+}
+
+function keyPressed(){
+document.addEventListener("keydown",function(e){
+		if (e.which == 65 && angle > -3){
+			 angle--;
+			 rotateAngle = angle*5;
+			 divPlayer.style.transform = "rotate("+rotateAngle+"deg)";
+		}
+		if (e.which == 68 && angle < 3){
+			angle++;
+			rotateAngle = angle*5;
+			divPlayer.style.transform = "rotate("+rotateAngle+"deg)";
+		}
+		divScore.innerHTML = angle;
+	});
 }

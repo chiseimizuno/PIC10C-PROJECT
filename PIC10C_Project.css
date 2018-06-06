@@ -41,7 +41,7 @@
 #playGame2{
 	display:none;
 	position:relative;
-	top:150px;
+	top:100px;
 	margin:0px 100px 0px 100px;
 	text-align:center;
 	font-weight:bolder;
@@ -79,10 +79,11 @@
 	margin-top:10px;
 }
 
-#score{
+.life{
 	float:left;
 	font-size:50px;
 	margin-top:10px;
+	margin-left:20px;
 }
 
 /*_________________________*/
