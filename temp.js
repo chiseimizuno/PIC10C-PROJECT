@@ -6,3 +6,6 @@
     <div id="foeXL6" class="foeXL"><img src="foeXL.png" alt="foeXL" /></div>
 
     	border:black solid 2px;
+
+    	background-size:contain;
+	background-image: url("bg_1.png");

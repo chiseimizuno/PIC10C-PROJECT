@@ -75,8 +75,22 @@
 
 #clock{
 	float:right;
-	font-size:50px;
+	margin-right:20px;
+	height:45px;
+	width:400px;
 	margin-top:10px;
+	border:black solid 2px;
+}
+
+#timeLeft{
+	background: red;
+	height:45px;
+	background-color: darkturquoise;
+	
+}
+
+#test{
+	background-size:contain;
 }
 
 .life{
@@ -89,6 +103,7 @@
 /*_________________________*/
 
 #game{
+
 	float:bottom;
 	width:850px;
 	height:500px;
