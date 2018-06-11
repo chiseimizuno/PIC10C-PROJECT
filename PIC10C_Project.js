@@ -1,5 +1,6 @@
 function init()
 {
+	//Creating Divs
 	divBall1 = document.getElementById("ball1");
 	divGame = document.getElementById("game");
 	divPlayer = document.getElementById("player");
@@ -9,17 +10,13 @@ function init()
 	divCountDown = document.getElementById("countDown");
 	divClock = document.getElementById("clock");
 	divTimer = document.getElementById("timeLeft");
+
 	//divScore = document.getElementById("score");
-	gameActive = false;
-	mouseActive = false;
 	divPlay2.onclick = continue_game;
 	divPlay.onclick = start;
-}
-
-function start()
-{
-	divPlay.style.display = "none";
-
+	level = 1;
+	lives = 5;
+	
 	//Click Event
 	document.onmousemove = moveMouse;
 
@@ -30,31 +27,40 @@ function start()
 	gameTop = divGame.offsetTop;
 	gameHeight = divGame.offsetHeight;
 	gameBottom = gameTop+gameHeight;
-	playerWidth = divPlayer.offsetWidth;
-	playerHeight = divPlayer.offsetHeight;
 	timerWidth = divTimer.offsetWidth;
 
+	//Get keystrokes
+	keyPressed();
+}
+
+function start()
+{
+	//Initialization
+	divPlay.style.display = "none";
+	playerWidth = divPlayer.offsetWidth;
+	playerHeight = divPlayer.offsetHeight;
+	
 	//Set location of player
+	divPlayerIMG.src = "p1.png";
+	divPlayerIMG.style.width = "72px";
 	divPlayer.style.left = gameLeft + gameWidth/2 - playerWidth/2  + "px";
 	divPlayer.style.top = gameTop + 440 + "px";
 	divPlayer.style.top = gameTop + 410 + "px"; //REAL	
 
 	//Variable Initialization
+	gameActive = false;
+	mouseActive = false;
 	isGameOver = false;
 	timerSpeed = 10;
 	isHit = false;
 	canShoot = true;
 	angle = 0;
-	level = 1;
 	counter = 0;
 	countDownCounter = 4;
 	points = 0;
 	playerAnimation = 0;
 	playerAnimationOn = true;
-	lives=3;
-
-	//Get keystrokes
-	keyPressed();
+	
 
 	//Make ball
 	b1 = new animatedObject(divBall1,-5000,-5000);
@@ -67,10 +73,16 @@ function start_game(){
 	divPlay2.style.display = "block";
 
 	if (level == 1){
-		numEnemy=2;;
-		numEnemyL=2;
-		numEnemyXL=2
-		timeSeconds = 3;
+		numEnemy=5;
+		numEnemyL=5;
+		numEnemyXL=5;
+		timeSeconds = 10;
+	}
+	if (level > 1){
+		numEnemy=level*3;
+		numEnemyL=0;
+		numEnemyXL=0;
+		timeSeconds = 10;
 	}
 	//Normal enemy
 	e1 = new Array(numEnemy);
@@ -103,7 +115,7 @@ function start_game(){
 function level_init()
 {
 	//Preparation
-	numEnemyLeft=numEnemy;
+	numEnemyLeft=numEnemy + numEnemyL + numEnemyXL;
 	gameActive = true;
 	divPlay2.style.display = "none";
 	//Timer Initialize
@@ -111,13 +123,16 @@ function level_init()
  	timeSubtract = divTimer.offsetWidth/counter;
 
 	//Levels
+	level1();
 	if (level == 1){
-		level1();
+		//level1();
 	}
 }
 
 function level1()
 {
+	if(!gameActive)
+		return;
 	for (var i = 0; i < numEnemy; i++)
 		animate_enemy(e1[i]);
 	for (var i = 0; i < numEnemyL; i++)
@@ -132,47 +147,94 @@ function level1()
 }
 
 function level_clear(){
-	alert(1);
+	divPlayer.style.transform = "rotate(0deg)";
+	var playerLeftCurrent = divPlayer.offsetLeft;
+	level++;
+	divPlay2.innerHTML = "Level " + level;
+	divPlay2.style.display = "block";
+	gameActive = false;
+	start();
+	divPlayer.style.left = playerLeftCurrent + "px";
+	divPlayerIMG.style.width = "73px";
+	divPlayerIMG.src = "happy1.png";
 }
 
-function clearScreen()
+function reset()
 {
-	//gameActive = false;
+	gameActive=false;
+	level = 1;
+	lives = 5;
+	divPlay2.innerHTML = "Level " + level;
+	divTimer.style.width = timerWidth + "px";
+	document.getElementById("life1").src = "l1.png";
+	document.getElementById("life2").src = "l1.png";
+	document.getElementById("life3").src = "l1.png";
+	document.getElementById("life4").src = "l1.png";
+	document.getElementById("life5").src = "l1.png";
+	//Make enemies disappear
+	for (var i = 0; i < numEnemy; i++)
+	{
+		e1[i].item.innerHTML = '<img src="foe.png" alt="foe" />';
+		e1[i].disableVisibility();
+	}
+	for (var i = 0; i < numEnemyL; i++)
+		e1[i].disableVisibility();
+	for (var i = 0; i < numEnemyXL; i++)
+		e1XL[i].disableVisibility();
 	
+	start();
 }
 
 function game_over()
 {
-	//IMPORTANT
-	isGameOver = true;
+	//Resetting stuff
+	divPlay.innerHTML = "Play Again";
+	divPlay.onclick = reset;
+	divPlay.style.display = "block";
+	mouseActive = false;
+	divPlayer.style.transform = "rotate(0deg)";
+	isGameOver = true;//IMPORTANT
 	//Dead Player
+	divPlayerIMG.style.width = "77px";
 	divPlayerIMG.src = "dead.png";
 	divPlayer.style.top = gameBottom-125 + "px";
+	b1.disableVisibility();
 	//Annoying Enemies
 	for (var i = 0; i < e1.length; i++){
+		if (player.offsetLeft > e1[i].xLoc)
+			e1[i].item.style.transform = "scale(-1,1)";
+		else
+			e1[i].item.style.transform = "scale(1,1)";
 		e1[i].item.innerHTML = '<img src="foeWon.png" alt="foe" />';
+		e1[i].baseFriction = 1;
 		e1[i].dx = 0;
+		e1[i].dy = 0;
 	}
 	for (var i = 0; i < e1L.length; i++){
+		if (player.offsetLeft > e1L[i].xLoc)
+			e1L[i].item.style.transform = "scale(-1,1)";
+		else
+			e1L[i].item.style.transform = "scale(1,1)";
+		e1L[i].baseFriction = 1;
 		e1L[i].dx = 0;
+		e1L[i].dy = 0;
 	}
 	for (var i = 0; i < e1XL.length; i++){
+		if (player.offsetLeft > e1XL[i].xLoc)
+			e1XL[i].item.style.transform = "scale(-1,1)";
+		else
+			e1XL[i].item.style.transform = "scale(1,1)";
+		e1XL[i].baseFriction = 1;
 		e1XL[i].dx = 0;
+		e1XL[i].dy = 0;
 	}
-
-
-	divPlay.innerHTML = "Play Again";
-	divPlay.style.display = "block";
-	clearScreen();
-
-
-	mouseActive = false;
 }
 
 function shoot()
 {
-	if (!isGameActive || isGameOver)
+	if (!gameActive || isGameOver){
 		return;
+	}
 	if(canShoot){
 		b1.enableVisibility();
 		canShoot = false;
@@ -196,7 +258,7 @@ function shoot()
 
 function animate_ball(b)
 {
-	if(!gameActive)
+	if(!gameActive || isGameOver)
 		return;
 	b.changeX();
 	b.addEnergyLossX(0.01);
@@ -206,9 +268,8 @@ function animate_ball(b)
 	b.accelerateY(0.1);  //Gravity
 	b.changeY();
 		
-
 	//Horizontal wall collison detection
-	if(b.xLoc<gameLeft || b.xLoc+b.width>gameRight)
+	if(b.xLoc<gameLeft+1 || b.xLoc+b.width>gameRight-1)
 	{	
 		b.reverseX();
 	}
@@ -218,11 +279,12 @@ function animate_ball(b)
 	{
 		b.fixVerticalLocation();
 		b.reverseY();
-		b.addEnergyLossY(2);
+		b.addFrictionLoss(2);
 	}
 	setTimeout("animate_ball(b1)",10);
 }
 
+//Original: en, acc = 0.05,lossX = 0.001, lossY=0.05, lossY2=0.3
 function animate_enemy(en, acc = 0.05,lossX = 0.001, lossY=0.05, lossY2=0.3)
 {
 	if(!gameActive || !en.isVisible)
@@ -237,7 +299,7 @@ function animate_enemy(en, acc = 0.05,lossX = 0.001, lossY=0.05, lossY2=0.3)
 	en.changeY();
 	
 	//Horizontal wall collison detection
-	if(en.xLoc<gameLeft+2 || en.xLoc+en.width>gameRight-2)
+	if(en.xLoc<gameLeft+3 || en.xLoc+en.width>gameRight-3)
 	{	
 		en.reverseX();
 		en.flipObject();
@@ -248,11 +310,11 @@ function animate_enemy(en, acc = 0.05,lossX = 0.001, lossY=0.05, lossY2=0.3)
 	{
 		en.fixVerticalLocation();
 		en.reverseY();
-		en.addEnergyLossY(lossY2);
+		en.addFrictionLoss(lossY2);
 	}
 	//Ball Collision Detection
-	if(en.yLoc+en.height> b1.yLoc && en.yLoc < b1.yLoc+b1.height
-		&& en.xLoc+en.width> b1.xLoc && en.xLoc < b1.xLoc+b1.width)
+	if(en.yLoc+en.height-3> b1.yLoc && en.yLoc+3 < b1.yLoc+b1.height
+		&& en.xLoc+en.width-3> b1.xLoc && en.xLoc+3 < b1.xLoc+b1.width)
 	{
 		ball_hit(en);
 	}
@@ -292,8 +354,13 @@ function ball_hit(en)
 		level_clear();
 }
 
+//CLASS________________________________________________
+
 function animatedObject(item, xLoc, yLoc) {
 	//Initalization
+	this.item = item;
+	this.item.style.display="block";
+	this.item.style.transform = "scale(1,1)";
 	this.xLoc = gameLeft + xLoc;
 	this.yLoc = gameTop + yLoc;
 	this.height = item.offsetHeight;
@@ -302,7 +369,7 @@ function animatedObject(item, xLoc, yLoc) {
 	//this.dx = Math.round(Math.random())*(-6) + 3; //Either -3 or 3
 	this.dx = 0.0; //Between -3 to 3
 	this.dy = 0.0;
-	this.item = item;
+	this.baseFriction = 0.0;
 	var scale = 1;
 	//Initial position
 	item.style.left =  this.xLoc + "px";
@@ -328,6 +395,9 @@ function animatedObject(item, xLoc, yLoc) {
 	this.fixVerticalLocation = function() {
 		this.yLoc = gameBottom-this.height;
 		this.item.style.top = this.yLoc + "px";
+	};
+	this.addFrictionLoss = function(loss) {
+		this.dy = this.dy + loss + this.baseFriction;
 	};
 	this.addEnergyLossY = function(loss) {
 		this.dy = this.dy + loss;

@@ -96,8 +96,9 @@
 .life{
 	float:left;
 	font-size:50px;
+	width:50px;
 	margin-top:10px;
-	margin-left:20px;
+	margin-left:27px;
 }
 
 /*_________________________*/
