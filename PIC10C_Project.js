@@ -10,8 +10,11 @@ function init()
 	divCountDown = document.getElementById("countDown");
 	divClock = document.getElementById("clock");
 	divTimer = document.getElementById("timeLeft");
+	divDebug = document.getElementById("debug");
 
 	//divScore = document.getElementById("score");
+	//Initialization
+	originalGameHTML = divGame.innerHTML;
 	divPlay2.onclick = continue_game;
 	divPlay.onclick = start;
 	level = 1;
@@ -30,12 +33,13 @@ function init()
 	timerWidth = divTimer.offsetWidth;
 
 	//Get keystrokes
-	keyPressed();
+	//keyPressed();
 }
 
 function start()
 {
 	//Initialization
+	//divGame.innerHTML = originalGameHTML;
 	divPlay.style.display = "none";
 	playerWidth = divPlayer.offsetWidth;
 	playerHeight = divPlayer.offsetHeight;
@@ -60,6 +64,7 @@ function start()
 	points = 0;
 	playerAnimation = 0;
 	playerAnimationOn = true;
+	prevX = divPlayer.offsetLeft;
 	
 
 	//Make ball
@@ -73,43 +78,76 @@ function start_game(){
 	divPlay2.style.display = "block";
 
 	if (level == 1){
-		numEnemy=5;
-		numEnemyL=5;
-		numEnemyXL=5;
-		timeSeconds = 10;
+		numEnemy=2;
+		numEnemyL=1;
+		numEnemyXL=1;
+		timeSeconds = 60;
 	}
 	if (level > 1){
-		numEnemy=level*3;
-		numEnemyL=0;
-		numEnemyXL=0;
-		timeSeconds = 10;
+		numEnemy=1+level;
+		numEnemyL=1+Math.floor(level/2);
+		numEnemyXL=1+Math.floor(level/3);
+		timeSeconds = 60;
 	}
 	//Normal enemy
 	e1 = new Array(numEnemy);
-	for (var i = 0; i < numEnemy; i++){
-		e1[i] = new animatedObject(document.getElementById("foe"+(i+1)),locRand(10,700),locRand(10,100));
-		e1[i].dx = -6 + Math.floor(Math.random()*13);
-		if (e1[i].dx > 0) 
-			e1[i].flipObject();
-	}
+	for (var i = 0; i < numEnemy; i++)
+		e1[i] = create_enemy("foe",i);
 	//Large Enemy
 	e1L = new Array(numEnemyL);
-	for (var i = 0; i < numEnemyL; i++){
-		e1L[i] = new animatedObject(document.getElementById("foeL"+(i+1)),locRand(10,700),locRand(10,100));
-		e1L[i].dx = -6 + Math.floor(Math.random()*13);
-		if (e1L[i].dx > 0) //Make Enemy Face Right Object
-			e1L[i].flipObject();
-	}
+	for (var i = 0; i < numEnemyL; i++)
+		e1L[i] = create_enemy("foeL",i);
 	//XLarge Enemy
 	e1XL = new Array(numEnemyXL);
-	for (var i = 0; i < numEnemyXL; i++){
-		e1XL[i] = new animatedObject(document.getElementById("foeXL"+(i+1)),locRand(10,700),locRand(10,100));
-		e1XL[i].dx = -6 + Math.floor(Math.random()*13);
-		if (e1XL[i].dx > 0) //Make Enemy Face Right Object
-			e1XL[i].flipObject();
-	}
+	for (var i = 0; i < numEnemyXL; i++)
+		e1XL[i] = create_enemy("foeXL",i);
 	//BOSS
 	//e1[0] = new animatedObject(document.getElementById("foeXXL"+(i+1)),300,300);
+}
+
+//Create new Node and return animatedObject enemy 
+function create_enemy(name, num)
+{
+	var nameID = name+num;
+	var newDiv = document.createElement("div");
+	newDiv.setAttribute("id",nameID);
+	newDiv.setAttribute("class",name);
+	var newImg = document.createElement("img");
+	newImg.setAttribute("src",name+".png");
+	newImg.setAttribute("alt",name);
+	newImg.setAttribute("width","100%");
+	newDiv.appendChild(newImg);
+	divGame.appendChild(newDiv);
+	var newEnemy = new animatedObject(newDiv,name,locRand(10,700),locRand(10,100));
+	while (newEnemy.dx < 1)
+		newEnemy.dx = -6 + Math.floor(Math.random()*13);
+	if (newEnemy.dx > 0) //Make Enemy Face Right Object
+			newEnemy.flipObject();
+	return newEnemy;
+}
+
+//Deleting all enemies
+function delete_all_enemy()
+{
+	var numDel = e1.length;
+	//Delete Foe
+	for (var i = 0; i < numDel; i++)
+		delete_enemy("foe",i);
+	//Delete FoeL
+	numDel = e1L.length;
+	for (var i = 0; i < numDel; i++)
+		delete_enemy("foeL",i);
+	numDel = e1XL.length;
+	//Delete FoeXL
+	for (var i = 0; i < numDel; i++)
+		delete_enemy("foeXL",i);
+}
+
+//Helper function to delete
+function delete_enemy(name, num)
+{
+	var nodeToDelete = document.getElementById(name+num);
+	divGame.removeChild(nodeToDelete);
 }
 
 function level_init()
@@ -131,29 +169,36 @@ function level_init()
 
 function level1()
 {
+	//Debug
+	divDebug.innerHTML = e1.length + "\n\n" + e1L.length + "\n" + e1XL.length + "\n" + numEnemyLeft;
 	if(!gameActive)
 		return;
-	for (var i = 0; i < numEnemy; i++)
+	for (var i = 0; i < e1.length; i++)
 		animate_enemy(e1[i]);
-	for (var i = 0; i < numEnemyL; i++)
+	for (var i = 0; i < e1L.length; i++)
 		animate_enemy(e1L[i]);
-	for (var i = 0; i < numEnemyXL; i++)
+	for (var i = 0; i < e1XL.length; i++)
 		animate_enemy(e1XL[i]);
 	
 	//Boss
 	//animate_enemy(e1[0],1,0,0,0);
 
-	setTimeout("level1()",5);
+	setTimeout("level1()",6);
 }
 
+
 function level_clear(){
+	delete_all_enemy();
+	//Reset variables
+	level++;
+	divTimer.style.width = timerWidth + "px";
 	divPlayer.style.transform = "rotate(0deg)";
 	var playerLeftCurrent = divPlayer.offsetLeft;
-	level++;
 	divPlay2.innerHTML = "Level " + level;
 	divPlay2.style.display = "block";
 	gameActive = false;
 	start();
+	//Change Player Position to Original
 	divPlayer.style.left = playerLeftCurrent + "px";
 	divPlayerIMG.style.width = "73px";
 	divPlayerIMG.src = "happy1.png";
@@ -161,20 +206,20 @@ function level_clear(){
 
 function reset()
 {
+	//Reset Initializations
+	delete_all_enemy();
 	gameActive=false;
 	level = 1;
 	lives = 5;
 	divPlay2.innerHTML = "Level " + level;
 	divTimer.style.width = timerWidth + "px";
-	document.getElementById("life1").src = "l1.png";
-	document.getElementById("life2").src = "l1.png";
-	document.getElementById("life3").src = "l1.png";
-	document.getElementById("life4").src = "l1.png";
-	document.getElementById("life5").src = "l1.png";
+	//Reset Lives
+	for (var i = 0; i < lives; i++)
+		document.getElementById("life" + (i+1)).src = "l1.png";
 	//Make enemies disappear
 	for (var i = 0; i < numEnemy; i++)
 	{
-		e1[i].item.innerHTML = '<img src="foe.png" alt="foe" />';
+		e1[i].item.innerHTML = '<img src="foe.png" alt="foe"/>';
 		e1[i].disableVisibility();
 	}
 	for (var i = 0; i < numEnemyL; i++)
@@ -205,7 +250,8 @@ function game_over()
 			e1[i].item.style.transform = "scale(-1,1)";
 		else
 			e1[i].item.style.transform = "scale(1,1)";
-		e1[i].item.innerHTML = '<img src="foeWon.png" alt="foe" />';
+		e1[i].item.firstChild.src = "foeWon.png";
+		//e1[i].item.innerHTML = '<img src="foeWon.png" alt="foe" />';
 		e1[i].baseFriction = 1;
 		e1[i].dx = 0;
 		e1[i].dy = 0;
@@ -285,7 +331,7 @@ function animate_ball(b)
 }
 
 //Original: en, acc = 0.05,lossX = 0.001, lossY=0.05, lossY2=0.3
-function animate_enemy(en, acc = 0.05,lossX = 0.001, lossY=0.05, lossY2=0.3)
+function animate_enemy(en, acc = 0.01,lossX = 0.001, lossY=0.05, lossY2=0.3)
 {
 	if(!gameActive || !en.isVisible)
 		return;
@@ -297,9 +343,10 @@ function animate_enemy(en, acc = 0.05,lossX = 0.001, lossY=0.05, lossY2=0.3)
 	en.accelerateY(acc);  //Gravity
 	en.addEnergyLossY(lossY);
 	en.changeY();
+	//en.item.innerHTML = en.dy;
 	
 	//Horizontal wall collison detection
-	if(en.xLoc<gameLeft+3 || en.xLoc+en.width>gameRight-3)
+	if(en.xLoc<gameLeft+5 || en.xLoc+en.width>gameRight-5)
 	{	
 		en.reverseX();
 		en.flipObject();
@@ -308,10 +355,21 @@ function animate_enemy(en, acc = 0.05,lossX = 0.001, lossY=0.05, lossY2=0.3)
 	//Vertical collision detection
 	if(en.yLoc+en.height>gameBottom)
 	{
+		if (en.isDead)
+			en.disableVisibility();
+		if (en.dy < 4){
+			lossY = 0;
+			lossY2 = 0;
+			acc = 0;
+		}
 		en.fixVerticalLocation();
 		en.reverseY();
 		en.addFrictionLoss(lossY2);
+
 	}
+	//No ball or player collision detection
+	if (en.isDead)
+		return;
 	//Ball Collision Detection
 	if(en.yLoc+en.height-3> b1.yLoc && en.yLoc+3 < b1.yLoc+b1.height
 		&& en.xLoc+en.width-3> b1.xLoc && en.xLoc+3 < b1.xLoc+b1.width)
@@ -347,18 +405,63 @@ function ball_hit(en)
 {
 	if(!gameActive || isGameOver)
 		return;
-	b1.disableVisibility();
-	en.disableVisibility();
-	numEnemyLeft--;
+	//Is Dead
+	if (!en.isDead){
+		numEnemyLeft--;
+		b1.disableVisibility();	
+	}
+	var enemyName = en.typeM; 
+	//If foe hit
+	if (enemyName == "foe")
+	{
+		en.dx = 0;
+		en.dy = 0;
+		en.item.style.transform = "scale(1,-1)";
+		en.item.innerHTML = '<img src="foeDead.png" alt="foe" />';
+		en.isDead = true;
+	}
+	//If foeL hit
+	else if(enemyName == "foeL" || enemyName == "foeXL")
+	{
+		var e1copy;
+		var newEnemyName;
+		if (enemyName == "foeL")
+		{
+			e1copy = e1;
+			newEnemyName = "foe";
+		}
+		else
+		{
+			e1copy = e1L;
+			newEnemyName = "foeL";
+		}
+		numEnemyLeft+=2;
+		var newEnemy1 = create_enemy(newEnemyName,e1copy.length);
+		var newEnemy2 = create_enemy(newEnemyName,e1copy.length+1);
+		newEnemy1.xLoc = en.xLoc+en.width/2 - newEnemy1.width/2;
+		newEnemy2.xLoc = en.xLoc+en.width/2 - newEnemy2.width/2;
+		newEnemy1.yLoc = en.yLoc;
+		newEnemy2.yLoc = en.yLoc;
+		newEnemy1.dx = Math.abs(newEnemy1.dx);
+		newEnemy2.dx = -1*newEnemy1.dx;
+		newEnemy1.faceRight();
+		newEnemy2.faceLeft();
+		
+		e1copy.push(newEnemy1);
+		e1copy.push(newEnemy2);
+
+		en.disableVisibility();
+	} 
 	if (numEnemyLeft == 0)
 		level_clear();
 }
 
 //CLASS________________________________________________
 
-function animatedObject(item, xLoc, yLoc) {
+function animatedObject(item, typeM, xLoc, yLoc) {
 	//Initalization
 	this.item = item;
+	this.typeM = typeM;
 	this.item.style.display="block";
 	this.item.style.transform = "scale(1,1)";
 	this.xLoc = gameLeft + xLoc;
@@ -366,6 +469,7 @@ function animatedObject(item, xLoc, yLoc) {
 	this.height = item.offsetHeight;
 	this.width = item.offsetWidth;
 	this.isVisible = true;
+	this.isDead = false;
 	//this.dx = Math.round(Math.random())*(-6) + 3; //Either -3 or 3
 	this.dx = 0.0; //Between -3 to 3
 	this.dy = 0.0;
@@ -425,6 +529,14 @@ function animatedObject(item, xLoc, yLoc) {
 		scale = scale*-1;
 		this.item.style.transform = "scale("+scale+",1)";
 	};
+	this.faceLeft = function() {
+		scale = 1;
+		this.item.style.transform = "scale(1,1)";
+	};
+	this.faceRight = function() {
+		scale = -1;
+		this.item.style.transform = "scale(-1,1)";
+	};
 }
 
 
@@ -448,7 +560,16 @@ function Clock()
 function moveMouse(e){
 	if (!mouseActive)
 		return;
-	prevY = divPlayer.offsetTop;
+	//Change direction
+	currentX = divPlayer.offsetLeft;
+	if (currentX > prevX)
+		divPlayerIMG.style.transform = "scale(-1,1)";
+	else
+		divPlayerIMG.style.transform = "scale(1,1)";
+
+
+	prevX = divPlayer.offsetLeft;
+
 
 	x=e.pageX;
 	y=e.pageY;
