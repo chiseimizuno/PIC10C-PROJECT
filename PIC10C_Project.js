@@ -12,8 +12,16 @@ function init()
 	divTimer = document.getElementById("timeLeft");
 	divDebug = document.getElementById("debug");
 	divDescription = document.getElementById("description");
+	//divMusic = document.getElementById("music");
+	//divMusic.innerHTML = '<embed src="bgm1.mp3" autostart="true" loop="true" hidden="true">';
 
 	//Initialization
+	pop1 = new sound("pop1.mp3");
+	pop2 = new sound("pop2.mp3");
+	clickSound = new sound("clicked.mp3");
+	monkeySound = new sound("ouch.mp3");
+	lostSound = new sound("lost.mp3");
+	wonSound = new sound("won1.mp3");
 	originalGameHTML = divGame.innerHTML;
 	divPlay2.onclick = continue_game;
 	divPlay.onclick = start;
@@ -39,6 +47,8 @@ function init()
 //For restarting variables and levels
 function start()
 {
+	if (level == 1)
+		clickSound.play();
 	//Initialization
 	divGame.style.cursor = "default";
 	divPlay2.style.cursor = "pointer";
@@ -237,6 +247,7 @@ function level_repeat()
 function level_clear(){
 	delete_all_enemy();
 	reset_lives();
+	wonSound.play();
 	//Reset variables
 	level++;
 	divTimer.style.width = timerWidth + "px";
@@ -263,6 +274,7 @@ function game_over()
 	divPlayer.style.transform = "rotate(0deg)";
 	isGameOver = true;//IMPORTANT
 	//Dead Player
+	lostSound.play();
 	divPlayerIMG.style.width = "77px";
 	divPlayerIMG.src = "dead.png";
 	divPlayer.style.top = gameBottom-125 + "px";
@@ -302,6 +314,7 @@ function reset()
 {
 	//Reset Initializations
 	delete_all_enemy();
+	reset_lives();
 	gameActive=false;
 	level = 1;
 	divPlay2.innerHTML = "Level " + level;
@@ -413,6 +426,7 @@ function player_hit()
 {
 	if (isHit || !gameActive || isGameOver)
 		return;
+	monkeySound.play();
 	lives--;
 	if (lives >= 0)
 		isHit = true;
@@ -441,6 +455,7 @@ function ball_hit(en)
 	//If foe hit
 	if (enemyName == "foe")
 	{
+		pop2.play();
 		en.dx = 0;
 		en.dy = 0;
 		en.item.style.transform = "scale(1,-1)";
@@ -450,6 +465,7 @@ function ball_hit(en)
 	//If foeL hit
 	else if(enemyName == "foeL" || enemyName == "foeXL")
 	{
+		pop1.play();
 		var e1copy;
 		var newEnemyName;
 		var newEnemyWidth;
@@ -654,6 +670,7 @@ function moveMouse(e){
 }
 
 function continue_game() {
+	clickSound.play();
 	divDescription.innerHTML = "";
 	divGame.style.cursor = "none";
 	divPlay2.style.display = "none";
@@ -692,4 +709,19 @@ document.addEventListener("keydown",function(e){
 		}
 		divScore.innerHTML = angle;
 	});
+}
+
+function sound(src) {
+    this.sound = document.createElement("audio");
+    this.sound.src = src;
+    this.sound.setAttribute("preload", "auto");
+    this.sound.setAttribute("controls", "none");
+    this.sound.style.display = "none";
+    document.body.appendChild(this.sound);
+    this.play = function(){
+        this.sound.play();
+    }
+    this.stop = function(){
+        this.sound.pause();
+    }
 }

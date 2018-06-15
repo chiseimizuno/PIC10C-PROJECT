@@ -1,7 +1,9 @@
 *{font-family:helvetica;text-decoration:none;}
 
 /*_________________________*/
-
+body{
+	background-color:honeydew;
+}
 #playGame{
 	color:white;
 	margin:0px 100px 0px 100px;
@@ -80,6 +82,16 @@
 	background-image: url("bg_4.png");
 }
 
+#description{
+	z-index:50;
+	color:white;
+	position:relative;
+	margin:30px;
+	text-align:center;
+	font-weight:bold;
+	font-size:30px;
+}
+
 #clock{
 	float:right;
 	margin-right:20px;
@@ -122,15 +134,7 @@
 	background-image: url("bg_4.png");
 }
 
-#description{
-	z-index:50;
-	color:white;
-	position:relative;
-	margin:30px;
-	text-align:center;
-	font-weight:bold;
-	font-size:30px;
-}
+
 
 .foe{
 	position:absolute;
