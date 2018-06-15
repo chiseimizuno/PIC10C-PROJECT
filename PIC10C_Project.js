@@ -11,8 +11,8 @@ function init()
 	divClock = document.getElementById("clock");
 	divTimer = document.getElementById("timeLeft");
 	divDebug = document.getElementById("debug");
+	divDescription = document.getElementById("description");
 
-	//divScore = document.getElementById("score");
 	//Initialization
 	originalGameHTML = divGame.innerHTML;
 	divPlay2.onclick = continue_game;
@@ -36,10 +36,13 @@ function init()
 	//keyPressed();
 }
 
+//For restarting variables and levels
 function start()
 {
 	//Initialization
-	//divGame.innerHTML = originalGameHTML;
+	divGame.style.cursor = "pointer";
+	divPlay2.style.display = "pointer";
+	divDescription.innerHTML = "";
 	divPlay.style.display = "none";
 	playerWidth = divPlayer.offsetWidth;
 	playerHeight = divPlayer.offsetHeight;
@@ -74,21 +77,75 @@ function start()
 	start_game();
 }
 
+//Choosing number of monsters per level
 function start_game(){
 	divPlay2.style.display = "block";
 
+	//Different monsters for different levels
 	if (level == 1){
-		numEnemy=2;
-		numEnemyL=1;
-		numEnemyXL=1;
+		divDescription.innerHTML = "Just click to shoot it down! Easy as pie :)"
+		numEnemy=1;
+		numEnemyL=0;
+		numEnemyXL=0;
+		timeSeconds = 10;
+	}
+	if (level == 2){
+		divDescription.innerHTML = "Good, now can you take down more?"
+		numEnemy= 3;
+		numEnemyL = 0;
+		numEnemyXL = 0;
+		timeSeconds = 15;
+	}
+	if (level == 3){
+		divDescription.innerHTML = "This one splits into two smaller ones!"
+		numEnemy=0;
+		numEnemyL = 1;
+		numEnemyXL = 0;
+		timeSeconds = 20;
+	}
+	if (level == 4){
+		divDescription.innerHTML = "Good, can you take down 2 big monsters?"
+		numEnemy= 0;
+		numEnemyL = 2;
+		numEnemyXL = 0;
+		timeSeconds = 30;
+	}
+	if (level == 5){
+		divDescription.innerHTML = "Wait... Even bigger monsters? "
+		numEnemy= 0;
+		numEnemyL = 0;
+		numEnemyXL = 1;
+		timeSeconds = 30;
+	}
+	if (level == 6){
+		divDescription.innerHTML = "One of each? How cute..."
+		numEnemy= 1;
+		numEnemyL = 1;
+		numEnemyXL = 1;
+		timeSeconds = 40;
+	}
+	if (level == 6){
+		divDescription.innerHTML = "Is this even possible?"
+		numEnemy= 0;
+		numEnemyL = 0;
+		numEnemyXL = 2;
+		timeSeconds = 50;
+	}
+	if (level == 7){
+		divDescription.innerHTML = "Good luck."
+		numEnemy= 0;
+		numEnemyL = 0;
+		numEnemyXL = 3;
 		timeSeconds = 60;
 	}
-	if (level > 1){
-		numEnemy=1+level;
-		numEnemyL=1+Math.floor(level/2);
-		numEnemyXL=1+Math.floor(level/3);
-		timeSeconds = 60;
+	if (level == 8){
+		divDescription.innerHTML = "Die."
+		numEnemy= 100;
+		numEnemyL = 0;
+		numEnemyXL = 0;
+		timeSeconds = 30;
 	}
+
 	//Normal enemy
 	e1 = new Array(numEnemy);
 	for (var i = 0; i < numEnemy; i++)
@@ -101,12 +158,10 @@ function start_game(){
 	e1XL = new Array(numEnemyXL);
 	for (var i = 0; i < numEnemyXL; i++)
 		e1XL[i] = create_enemy("foeXL",i);
-	//BOSS
-	//e1[0] = new animatedObject(document.getElementById("foeXXL"+(i+1)),300,300);
 }
 
 //Create new Node and return animatedObject enemy 
-function create_enemy(name, num)
+function create_enemy(name, num, x = locRand(10,700), y = locRand(40,100))
 {
 	var nameID = name+num;
 	var newDiv = document.createElement("div");
@@ -118,7 +173,7 @@ function create_enemy(name, num)
 	newImg.setAttribute("width","100%");
 	newDiv.appendChild(newImg);
 	divGame.appendChild(newDiv);
-	var newEnemy = new animatedObject(newDiv,name,locRand(10,700),locRand(10,100));
+	var newEnemy = new animatedObject(newDiv,name,x,y);
 	while (newEnemy.dx < 1)
 		newEnemy.dx = -6 + Math.floor(Math.random()*13);
 	if (newEnemy.dx > 0) //Make Enemy Face Right Object
@@ -159,18 +214,14 @@ function level_init()
 	//Timer Initialize
 	counter=(1000/timerSpeed)*timeSeconds;
  	timeSubtract = divTimer.offsetWidth/counter;
-
 	//Levels
-	level1();
-	if (level == 1){
-		//level1();
-	}
+	level_repeat();
 }
 
-function level1()
+function level_repeat()
 {
 	//Debug
-	divDebug.innerHTML = e1.length + "\n\n" + e1L.length + "\n" + e1XL.length + "\n" + numEnemyLeft;
+	//divDebug.innerHTML = e1.length + "\n\n" + e1L.length + "\n" + e1XL.length + "\n" + numEnemyLeft;
 	if(!gameActive)
 		return;
 	for (var i = 0; i < e1.length; i++)
@@ -179,16 +230,13 @@ function level1()
 		animate_enemy(e1L[i]);
 	for (var i = 0; i < e1XL.length; i++)
 		animate_enemy(e1XL[i]);
-	
-	//Boss
-	//animate_enemy(e1[0],1,0,0,0);
-
-	setTimeout("level1()",6);
+	setTimeout("level_repeat()",6);
 }
 
-
+//When level clears
 function level_clear(){
 	delete_all_enemy();
+	reset_lives();
 	//Reset variables
 	level++;
 	divTimer.style.width = timerWidth + "px";
@@ -204,35 +252,10 @@ function level_clear(){
 	divPlayerIMG.src = "happy1.png";
 }
 
-function reset()
-{
-	//Reset Initializations
-	delete_all_enemy();
-	gameActive=false;
-	level = 1;
-	lives = 5;
-	divPlay2.innerHTML = "Level " + level;
-	divTimer.style.width = timerWidth + "px";
-	//Reset Lives
-	for (var i = 0; i < lives; i++)
-		document.getElementById("life" + (i+1)).src = "l1.png";
-	//Make enemies disappear
-	for (var i = 0; i < numEnemy; i++)
-	{
-		e1[i].item.innerHTML = '<img src="foe.png" alt="foe"/>';
-		e1[i].disableVisibility();
-	}
-	for (var i = 0; i < numEnemyL; i++)
-		e1[i].disableVisibility();
-	for (var i = 0; i < numEnemyXL; i++)
-		e1XL[i].disableVisibility();
-	
-	start();
-}
-
 function game_over()
 {
 	//Resetting stuff
+	divDescription.innerHTML = "Awww... You can do it! Try Again?"
 	divPlay.innerHTML = "Play Again";
 	divPlay.onclick = reset;
 	divPlay.style.display = "block";
@@ -251,7 +274,6 @@ function game_over()
 		else
 			e1[i].item.style.transform = "scale(1,1)";
 		e1[i].item.firstChild.src = "foeWon.png";
-		//e1[i].item.innerHTML = '<img src="foeWon.png" alt="foe" />';
 		e1[i].baseFriction = 1;
 		e1[i].dx = 0;
 		e1[i].dy = 0;
@@ -276,31 +298,35 @@ function game_over()
 	}
 }
 
-function shoot()
+function reset()
 {
-	if (!gameActive || isGameOver){
-		return;
+	//Reset Initializations
+	delete_all_enemy();
+	gameActive=false;
+	level = 1;
+	divPlay2.innerHTML = "Level " + level;
+	divTimer.style.width = timerWidth + "px";
+	//Make enemies disappear
+	for (var i = 0; i < numEnemy; i++)
+	{
+		e1[i].item.innerHTML = '<img src="foe.png" alt="foe"/>';
+		e1[i].disableVisibility();
 	}
-	if(canShoot){
-		b1.enableVisibility();
-		canShoot = false;
-		setTimeout(function(){canShoot=true;},400);
-		//Current player position
-		playerLeft = divPlayer.offsetLeft;
-		playerRight = playerLeft+20;
-		b1.xLoc = playerLeft+playerWidth/4;
-		b1.yLoc = divPlayer.offsetTop;
-		b1.dy = -18;
-		b1.dx = angle*3;
-		//Move Ball
-		if (!b1Active)
-		{
-			animate_ball(b1);
-			b1Active = true;
-		}
-	}	
+	for (var i = 0; i < numEnemyL; i++)
+		e1[i].disableVisibility();
+	for (var i = 0; i < numEnemyXL; i++)
+		e1XL[i].disableVisibility();
+	
+	start();
 }
 
+function reset_lives()
+{
+	//Reset Lives
+	lives = 5;
+	for (var i = 0; i < lives; i++)
+		document.getElementById("life" + (i+1)).src = "l1.png";
+}
 
 function animate_ball(b)
 {
@@ -331,7 +357,7 @@ function animate_ball(b)
 }
 
 //Original: en, acc = 0.05,lossX = 0.001, lossY=0.05, lossY2=0.3
-function animate_enemy(en, acc = 0.01,lossX = 0.001, lossY=0.05, lossY2=0.3)
+function animate_enemy(en, acc = 0.005,lossX = 0.001, lossY=0.05, lossY2=0.3)
 {
 	if(!gameActive || !en.isVisible)
 		return;
@@ -357,7 +383,8 @@ function animate_enemy(en, acc = 0.01,lossX = 0.001, lossY=0.05, lossY2=0.3)
 	{
 		if (en.isDead)
 			en.disableVisibility();
-		if (en.dy < 4){
+		if (en.dy < 4.5){
+			en.dy = 4.5;
 			lossY = 0;
 			lossY2 = 0;
 			acc = 0;
@@ -425,25 +452,30 @@ function ball_hit(en)
 	{
 		var e1copy;
 		var newEnemyName;
+		var newEnemyWidth;
 		if (enemyName == "foeL")
 		{
 			e1copy = e1;
 			newEnemyName = "foe";
+			newEnemyWidth = 68;
 		}
 		else
 		{
 			e1copy = e1L;
 			newEnemyName = "foeL";
+			newEnemyWidth = 30;
 		}
 		numEnemyLeft+=2;
-		var newEnemy1 = create_enemy(newEnemyName,e1copy.length);
-		var newEnemy2 = create_enemy(newEnemyName,e1copy.length+1);
-		newEnemy1.xLoc = en.xLoc+en.width/2 - newEnemy1.width/2;
-		newEnemy2.xLoc = en.xLoc+en.width/2 - newEnemy2.width/2;
-		newEnemy1.yLoc = en.yLoc;
-		newEnemy2.yLoc = en.yLoc;
+		newX1 = en.xLoc+en.width/2 - newEnemyWidth/2;
+		newX2 = en.xLoc+en.width/2 - newEnemyWidth/2;
+		newY1 = en.yLoc;
+		newY2 = en.yLoc;
+		var newEnemy1 = create_enemy(newEnemyName,e1copy.length,newX1,newY1);
+		var newEnemy2 = create_enemy(newEnemyName,e1copy.length+1,newX2,newY2);
 		newEnemy1.dx = Math.abs(newEnemy1.dx);
 		newEnemy2.dx = -1*newEnemy1.dx;
+		newEnemy1.dy = -4.5;
+		newEnemy2.dy = -4.5;
 		newEnemy1.faceRight();
 		newEnemy2.faceLeft();
 		
@@ -454,6 +486,31 @@ function ball_hit(en)
 	} 
 	if (numEnemyLeft == 0)
 		level_clear();
+}
+
+function shoot()
+{
+	if (!gameActive || isGameOver){
+		return;
+	}
+	if(canShoot){
+		b1.enableVisibility();
+		canShoot = false;
+		setTimeout(function(){canShoot=true;},400);
+		//Current player position
+		playerLeft = divPlayer.offsetLeft;
+		playerRight = playerLeft+20;
+		b1.xLoc = playerLeft+playerWidth/4;
+		b1.yLoc = divPlayer.offsetTop;
+		b1.dy = -18;
+		b1.dx = angle*3;
+		//Move Ball
+		if (!b1Active)
+		{
+			animate_ball(b1);
+			b1Active = true;
+		}
+	}	
 }
 
 //CLASS________________________________________________
@@ -597,6 +654,7 @@ function moveMouse(e){
 }
 
 function continue_game() {
+	divDescription.innerHTML = "";
 	divGame.style.cursor = "none";
 	divPlay2.style.display = "none";
 	mouseActive = true;
@@ -614,7 +672,7 @@ function countDown()
 	}
 	else{
 		divCountDown.innerHTML = countDownCounter;
-		setTimeout("countDown()",300);
+		setTimeout("countDown()",500);
 	}
 }
 

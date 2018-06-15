@@ -54,9 +54,10 @@
 }
 
 #countDown{
+	z-index:100;
 	position:relative;
-	top:0px;
-	font-size:100px;
+	top:50px;
+	font-size:150px;
 	text-align:center;
 }
 /*_________________________*/
@@ -71,6 +72,7 @@
 	padding:0px 0px;
 	border:double black 3px;
 	background: rgba(245, 255, 250, 0.8);
+	background-image: url("bg_4.png");
 }
 
 #clock{
@@ -104,7 +106,6 @@
 /*_________________________*/
 
 #game{
-
 	float:bottom;
 	width:850px;
 	height:500px;
@@ -113,6 +114,17 @@
 	padding:0px 0px;
 	border:double black 3px;
 	background: rgba(245, 255, 250, 0.5);
+	background-image: url("bg_4.png");
+}
+
+#description{
+	z-index:50;
+	color:white;
+	position:relative;
+	margin:30px;
+	text-align:center;
+	font-weight:bold;
+	font-size:30px;
 }
 
 .foe{

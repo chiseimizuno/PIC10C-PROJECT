@@ -10,7 +10,6 @@
 </head>
 
 <body onload="init()" >
-
 <!--###################### Scoreboard ###################### -->
 <div id="display">
   <div id="clock"><div id="timeLeft"></div></div>
@@ -19,18 +18,24 @@
   <div class="life"><img src="life.png" alt="ball1" id="life3" height="103%"/></div>
   <div class="life"><img src="life.png" alt="ball1" id="life4" height="103%"/></div>
   <div class="life"><img src="life.png" alt="ball1" id="life5" height="103%"/></div>
+  <br/><br/><br/>
+  <div id="description"> <br/> Welcome! Simply use your mouse to move your monkey, and click to poop your enemies down!  You have 5 monkey lives and a time limit!</div>
 </div>
 
 <!--###################### GAME ###################### -->
 
  <div id="game" onClick="shoot()">
+
     <!--<img src="bg_1.png" alt="bg1" id="bg" width="100%"/> -->
-    <div id="ball1" class="ball"><img src="ball.png" alt="ball1" height="103%"/></div>
-    <div id="player"><img src="p1.png" id = "playerIMG" alt="player" width="103%"/></div>
+    
     <div id="playGame">Play Game</div>
     <div id="playGame2">Level 1</div>
+    <div id="ball1" class="ball"><img src="ball.png" alt="ball1" height="103%"/></div>
+    <div id="player"><img src="p1.png" id = "playerIMG" alt="player" width="103%"/></div>
+    
     <div id="countDown"></div>
   </div>
+  
   <div id="debug"></div>
 
 </body>
