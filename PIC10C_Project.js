@@ -40,8 +40,8 @@ function init()
 function start()
 {
 	//Initialization
-	divGame.style.cursor = "pointer";
-	divPlay2.style.display = "pointer";
+	divGame.style.cursor = "default";
+	divPlay2.style.cursor = "pointer";
 	divDescription.innerHTML = "";
 	divPlay.style.display = "none";
 	playerWidth = divPlayer.offsetWidth;

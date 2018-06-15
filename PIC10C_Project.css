@@ -3,6 +3,7 @@
 /*_________________________*/
 
 #playGame{
+	color:white;
 	margin:0px 100px 0px 100px;
 	text-align:center;
 	font-weight:bolder;
@@ -15,33 +16,20 @@
 }
 
 #playGame:hover{
-	background-color:white;
+	background-color:rgba(230,230,230,0.7);
 	cursor:pointer;
 	font-size:50px;
 }
 
 #playGame:active{
-	background-color:rgba(230,230,230,1);
-	cursor:pointer;
-	font-size:49px;
-}
-
-#playGame2:hover{
-	background-color:white;
-	cursor:pointer;
-	font-size:50px;
-}
-
-#playGame2:active{
-	background-color:rgba(230,230,230,1);
+	background-color:rgba(230,230,230,0.8);
 	cursor:pointer;
 	font-size:49px;
 }
 
 #playGame2{
+	color:white;
 	display:none;
-	position:relative;
-	top:100px;
 	margin:0px 100px 0px 100px;
 	text-align:center;
 	font-weight:bolder;
@@ -53,12 +41,29 @@
 	padding:10px;
 }
 
+#playGame2:hover{
+	background-color:rgba(230,230,230,0.7);
+	cursor:pointer;
+	font-size:50px;
+}
+
+#playGame2:active{
+	background-color:rgba(230,230,230,0.8);
+	cursor:pointer;
+	font-size:49px;
+}
+
+
+
 #countDown{
+	color:white;
 	z-index:100;
 	position:relative;
 	top:50px;
 	font-size:150px;
+	font-weight:bold;
 	text-align:center;
+
 }
 /*_________________________*/
 
