@@ -106,10 +106,10 @@ Some improvements I would like to add to this game in the future is:
   
 ## Acknowledgement
   
-I would like to thank Dr.Salazar for allowing me to freely express my creativity.  I had a blast making this game!
-I would like to thank Dr.Virtanen for introducing me to into to programming for the internet
-Sprites were taken from the computer game [Maplestory](Maplestory.com).
-Most sound effects came from [Zapsplat](Zapsplat.com).
+* I would like to thank Dr.Salazar for allowing me to freely express my creativity.  I had a blast making this game!  
+* I would like to thank Dr.Virtanen for introducing me to into to programming for the internet. 
+* Sprites were taken from the computer game [Maplestory](Maplestory.com). 
+* Most sound effects came from [Zapsplat](Zapsplat.com).
 
   
   ## Author
