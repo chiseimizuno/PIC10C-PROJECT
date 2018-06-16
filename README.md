@@ -1,7 +1,7 @@
 # PIC10C Final Project
 
 Welcome, this github repo contains my progress and documentation of my PIC10C Final Project! 
-[Link to Working Website Version of Game](http://pic.ucla.edu/~cmizuno/PIC10C/PIC10C-PROJECT/PIC10C_Project.html)
+* [Link to Working Website Version of Game](http://pic.ucla.edu/~cmizuno/PIC10C/PIC10C-PROJECT/PIC10C_Project.html)
 
 ## Introduction
 
@@ -111,6 +111,5 @@ Some improvements I would like to add to this game in the future is:
 * Sprites were taken from the computer game [Maplestory](Maplestory.com). 
 * Most sound effects came from [Zapsplat](Zapsplat.com).
 
-  
-  ## Author
-  Chisei Mizuno
+## Author
+Chisei Mizuno
