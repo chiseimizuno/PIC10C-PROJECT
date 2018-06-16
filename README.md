@@ -5,7 +5,7 @@ Welcome, this github repo contains my progress and documentation of my PIC10C Fi
 
 ## Introduction
 
-The Idea of this project actually started back when I took PIC40A (Introduction to Programming for the Internet) last quarter. We were introduced very elementary websites using HTML/CSS/Javascript, and while I had fun making an interactive website for the PIC40A final project, I really wanted to go above and beyond by making a complete game.  Playing video games has always been a passion of mine, and I saw the potential in making a game through HTML/CSS/Javascript. When Professor Salaar gave us the option to freely create our own program, I knew I had to use this opportunity to create a fully functional, addictive video game! 
+The Idea of this project actually started back when I took PIC40A (Introduction to Programming for the Internet) last quarter. We were introduced very elementary websites using HTML/CSS/Javascript, and while I had fun making an interactive website for the PIC40A final project, I really wanted to go above and beyond by making a complete game.  Playing video games has always been a passion of mine, and I saw the potential in making a game through HTML/CSS/Javascript. When Professor Salazar gave us the option to freely create our own program, I knew I had to use this opportunity to create a fully functional, addictive video game! 
 
 ### Goals
 
@@ -40,21 +40,23 @@ While it is impossible to list all the websites I used to help me complete this 
 
 The progress for the game, in large part, came very smoothly.  I worked a step at a time, working on one function or mechanic at a time, and making sure it works 100% and was generalizable.  
 
-### Major steps 
+### Major steps in completing the game
 - At the beginning of the game, I wanted to make sure I can get the bouncing ball mechanic right.  I had help from physicscodes.com, which showed the basics of creating a bouncing ball.  However, I wanted a deep mechanic, so I also added left and right movement like the game Space Invader.  I also decided to add air friction speed loss in my ball class as well.  In fact, not only do balls bounce lower and lower, the balls also stop moving left and right at one pointing, meaning it'll bounce in place. 
 - Animation was done using the setTimeout method, which takes in two parameters: the function to run, and how many milliseconds later to run it.  For the enemy animation, I set the time to 10 milliseconds, so that there are essentially 100 frames per second, leading to a very smooth game.  
 - The next challenge came in making a generalized bouncing object class.  I did not know if classes existed, and how versatile they were, so I had help from multiple resources listed above.  What I've learned through research is that though Javascript is technically an Object Oriented Program, making classes is somewhat non-trivial, as we declare classes using function just like a normal function.
 - Next, I wanted to create a container to store all the enemies. There were 3 different types of monster, all of which had its own container.  After researching the types of container offered, I decided to go with Array because they worked just like vectors in C++ in that they have internal array length, push, pop, and other features.  I simply had to store enemies then show them on the screen, so I had no use using associative, non-associative, or container adaptor.
-- Next, I had to make user iteraction with the console. When the user interacted with a button, or simply clicked on the screen, function pointers came in handy because I was able to attach the location of the function with a specific type of action on the screen.  This also meant that I could change which function was associated with which button during the execution of the program.  For example, while the "Play button" was first associated with the function start(), it was later reused to point to the function "reset_game". 
+- Next, I had to make user iteraction with the console. When the user interacted with a button, or simply clicked on the screen, function pointers came in handy because I was able to attach the memory location of the function with a specific type of action on the screen.  This also meant that I could change which function was associated with which button during the execution of the program.  For example, while the "Play button" was first associated with the function start(), it was later reused to point to the function "reset_game". 
 - Collion Detection was a tough code to implement. However, all it required was some simple yet rather logically difficult code. Every time the enemy moved, there was an if statement to see if enemy's x and y were within the player or the ball's x and y, which would result in the respective functions running.
-- Graphics were first added as images inside divs.  When there is an movement animation, then I simply swapped the image with the next image, then on to the next, then back to the first image, and so on (e.g. player/monkey walking animation).   
+- Graphics were first added as images inside divs.  When there is an movement animation, then I simply swapped the image with the next image, then on to the next, then back to the first image, and so on (e.g. player/monkey walking animation).
+- At the beginning, I hardcodeed all the enemies (e.g. copy and pasted an enemy div 30 times). However, with my programming experience in 10A-C, I knew there had to be a more effient way.  Through much research using mainly [w3school](w3schools.com), I was able to dynamically create new enemy divs.  I didn't have to hard code any enemies, they just appeared when I need them, and disappeared when I was done with them. This also means that if I want to, I can have 100 enemies appear at once (which is actually the final level of this game, if you can get that far that is).  
+- By creating a generalizable class object, I was able to make levels by simply writing down the number of small, big, and extra large enemies to appear on the screen.  I truly understood that by making a great foundation at the beginning, the later parts become much quicker to implement and much more efficient. 
 - BGM, background image, and sound effects were all added at the end to create a more full experience.  This made the game look much livlier.  
 
 ### Attention to small details
 To fully accomplish my goal of making a polished game, I had to add simple yet important details to make my game look lively and fluid. Here are some of the few worthy mentions:
 - Timers are coded as diminishing bar, rather than a simple clock
 - Lives are seen as hearts, rather than a life-count
-- Their speed and x y position is always random.  
+- Enemy speed, x, and y locations are always random.    
 - When damage is taken, one of the heart turns into a sad image, the player's face becomes mad, and you can hear a monkey scream sound effect
 - When the small monsters die, they make a sad face and fall straight down
 - When the player dies, all the enemies face you, and the smaller one makes a mocking face
@@ -106,7 +108,7 @@ Some improvements I would like to add to this game in the future is:
 I would like to thank Dr.Salazar for allowing me to freely express my creativity.  I had a blast making this game!
 I would like to thank Dr.Virtanen for introducing me to into to programming for the internet
 Sprites were taken from the computer game [Maplestory](Maplestory.com).
-Most sound effects came from Zapsplat(Zapsplat.com).
+Most sound effects came from [Zapsplat](Zapsplat.com).
 
   
   ## Author
